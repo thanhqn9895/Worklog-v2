@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://accounts.google.com; style-src 'unsafe-inline' https://accounts.google.com; connect-src https://www.googleapis.com https://accounts.google.com; frame-src https://calendar.google.com https://accounts.google.com; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'" />
+<meta name="referrer" content="no-referrer" />
+<meta name="theme-color" content="#0F766E" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230F766E'/%3E%3Crect x='112' y='128' width='288' height='272' rx='36' fill='%23fff'/%3E%3Cpath d='M218 318l-46-46 22-22 24 24 76-76 22 22z' fill='%230F766E'/%3E%3C/svg%3E" />
+<title>WorkLog &amp; GCal</title>
+<style>
+:root{--bg:#F4F6F9;--sf:#fff;--sv:#EEF2F6;--pr:#0F766E;--pd:#115E59;--ps:#CCFBF1;--tx:#0F172A;--mu:#475569;--bd:#E2E8F0;--lv:#DC2626;--lvb:#FEE2E2;--ot:#B45309;--otb:#FEF3C7;--sn:#7C3AED;--snb:#EDE9FE;--wf:#2563EB;--wfb:#DBEAFE}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);line-height:1.45;padding-bottom:88px}
+button{font-family:inherit}
+.bar{background:linear-gradient(135deg,var(--pr),var(--pd));color:#fff;padding:14px 16px;padding-top:max(14px,env(safe-area-inset-top));position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bar h1{margin:0;font-size:17px}.bar p{margin:2px 0 0;font-size:12px;opacity:.9}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:999px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer;max-width:45vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wrap{max-width:1100px;margin:0 auto;padding:12px}
+.banner{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF;border-radius:12px;padding:9px 12px;font-size:12px;margin-bottom:12px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:768px){.kpis{grid-template-columns:repeat(5,1fr)}}
+.kpi{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:12px}
+.kpi:first-child{grid-column:span 2}@media(min-width:768px){.kpi:first-child{grid-column:auto}}
+.kb{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;margin-bottom:6px}
+.kv{font-size:21px;font-weight:800}.ks{font-size:11.5px;color:var(--mu)}
+.prog{margin-top:8px;background:var(--bd);height:7px;border-radius:99px;overflow:hidden}.prog i{display:block;height:100%;background:var(--lv)}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
+.tb{border:1px solid var(--bd);background:var(--sf);color:var(--mu);font-weight:600;font-size:13px;padding:9px 14px;border-radius:12px;white-space:nowrap;cursor:pointer}
+.tb.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.mt{font-size:16px;font-weight:800;min-width:110px;text-align:center}
+.ib{background:var(--sv);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:7px 11px;font-size:13px;font-weight:700;cursor:pointer}
+.pill{border:1px solid var(--bd);background:var(--sv);color:var(--tx);border-radius:99px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer}
+.pill.on{background:var(--tx);color:#fff}
+.qm{border:1px solid #FECACA;background:#FEF2F2;color:#B91C1C;border-radius:8px;padding:4px 8px;font-size:11.5px;font-weight:700;cursor:pointer}
+.bp,.bo,.bg{border-radius:10px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--pr)}
+.bp{background:var(--pr);color:#fff}.bo{background:#fff;color:var(--pr)}.bg{background:#1A73E8;color:#fff;border-color:#1A73E8}
+button:disabled{opacity:.45;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{text-align:center;font-size:11.5px;font-weight:800;color:var(--mu);padding:6px 0;background:var(--sv);border-radius:8px}.dow.s{color:var(--lv)}
+.cell{min-height:76px;border:1px solid var(--bd);border-radius:10px;padding:4px;background:#fff;cursor:pointer;overflow:hidden}
+@media(min-width:768px){.cell{min-height:94px}}
+.cell.o{opacity:.4}.cell.t{border:2px solid var(--pr)}.cell.sn{background:#FAF5FF}
+.ct{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.dn{font-size:12px;font-weight:800}.dn.s{color:var(--lv)}
+.q17{font-size:10px;font-weight:700;color:var(--pr);background:var(--ps);border:0;border-radius:6px;padding:2px 4px;cursor:pointer}
+.ev{font-size:10px;font-weight:700;padding:2px 3px;border-radius:5px;margin-bottom:2px;line-height:1.2;overflow-wrap:anywhere}
+.ev-regular{background:var(--ps);color:var(--pr)}.ev-ot{background:var(--otb);color:var(--ot)}.ev-leave{background:var(--lvb);color:var(--lv)}.ev-sunday{background:var(--snb);color:var(--sn)}.ev-welfare,.ev-welfareoff{background:var(--wfb);color:var(--wf)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left}th{background:var(--sv);color:var(--mu);white-space:nowrap}
+.sb{border:1px solid var(--bd);background:var(--sv);border-radius:14px;padding:13px;margin-bottom:12px}.sb h4{margin:0 0 6px;font-size:14.5px}.sb p{font-size:12.5px;color:var(--mu);margin:0 0 8px}
+.mb{position:fixed;inset:0;background:rgba(15,23,42,.6);display:none;align-items:flex-end;justify-content:center;z-index:100;padding:10px}
+@media(min-width:640px){.mb{align-items:center}}.mb.open{display:flex}
+.md{background:#fff;width:100%;max-width:500px;border-radius:20px;padding:18px;max-height:92vh;overflow-y:auto}
+.md h3{margin:0 0 10px;font-size:17px}
+.fg{margin-bottom:11px}.fg label{display:block;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--mu)}
+.fc{width:100%;padding:9px 11px;border:1.5px solid var(--bd);border-radius:10px;font-size:14px;font-family:inherit}.fc:focus{outline:2px solid var(--pr);border-color:var(--pr)}
+.fc:disabled{background:var(--sv);color:var(--mu)}.fc.hl{border-color:var(--pr);background:#F0FDFA}
+.ln{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13.5px}.ln small{display:block;color:var(--mu);font-size:11.5px}.ln b{white-space:nowrap}.ln.tot{font-weight:800}
+.net{background:var(--ps);border-radius:14px;padding:14px;margin:12px 0;text-align:center}.net .kv{font-size:26px;color:var(--pd)}#payLines h4{margin:14px 0 2px;font-size:14px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nc{background:var(--sv);border:1px solid var(--bd);border-radius:8px;padding:4px 8px;font-size:11.5px;cursor:pointer;margin:5px 5px 0 0}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.ex{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--sv);border-radius:10px;padding:6px 10px;margin-bottom:6px;font-size:12.5px}
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));background:var(--pr);color:#fff;border:0;border-radius:99px;padding:13px 18px;font-size:14px;font-weight:700;box-shadow:0 6px 20px rgba(15,118,110,.38);cursor:pointer;z-index:50}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--tx);color:#fff;padding:9px 16px;border-radius:99px;font-size:12.5px;font-weight:600;z-index:200;display:none;max-width:90vw;text-align:center}
+.empty{text-align:center;padding:20px;color:var(--mu);font-size:13px}
+.hidden{display:none!important}
+.ok{color:var(--pr);font-weight:700}.pend{color:var(--ot);font-weight:700}
+iframe{width:100%;height:500px;border:1px solid var(--bd);border-radius:12px}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div><h1>WorkLog &amp; GCal</h1><p id="company"></p></div>
+  <button class="chip" id="empChip" data-act="profile"></button>
+</header>
+
+<main class="wrap">
+  <div class="banner" id="banner"><span>Dữ liệu lưu ngay trên thiết bị này. Hãy sao lưu JSON định kỳ để không mất dữ liệu.</span><button class="ib" data-act="hideBanner">Ẩn</button></div>
+  <div class="banner hidden" id="remind" style="background:#FFFBEB;border-color:#FDE68A;color:#92400E;flex-wrap:wrap" role="alert">
+    <span id="remindText"></span>
+    <span class="row" style="margin:0"><button class="bp" id="remToday" data-act="remToday">Ghi hôm nay (về 17h)</button><button class="bo" id="remBulk" data-act="remBulk">Điền ngày trống</button><button class="ib" data-act="remSnooze">Để sau</button></span>
+  </div>
+  <section class="kpis" id="kpis"></section>
+  <nav class="tabs">
+    <button class="tb on" data-act="tab" data-v="calendar">Lịch chấm công</button>
+    <button class="tb" data-act="tab" data-v="leave">Thẻ xin nghỉ</button>
+    <button class="tb" data-act="tab" data-v="pay">Tính lương (demo)</button>
+    <button class="tb" data-act="tab" data-v="records">Chi tiết &amp; báo cáo</button>
+    <button class="tb" data-act="tab" data-v="gcal">Nhắc &amp; đồng bộ</button>
+  </nav>
+
+  <section id="tab-calendar" class="card">
+    <div class="row">
+      <button class="ib" data-act="prev" aria-label="Tháng trước">&#9664;</button>
+      <div class="mt" id="monthTitle"></div>
+      <button class="ib" data-act="next" aria-label="Tháng sau">&#9654;</button>
+      <button class="ib" data-act="today">Hôm nay</button>
+      <button class="bo" data-act="bulk">Điền ngày trống (về 17h)</button>
+    </div>
+    <div class="row" id="qm"></div>
+    <div class="row" id="filters"></div>
+    <div class="ks" style="margin-bottom:6px">TC = tăng ca, CN = Chủ nhật, PL = phúc lợi. Chạm vào ngày để xem chi tiết.</div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="tab-leave" class="card hidden">
+    <div class="row" style="justify-content:space-between">
+      <div><h3 style="margin:0;font-size:16px" id="lvTitle"></h3><div style="font-size:12px;color:var(--mu)" id="lvSub"></div></div>
+      <button class="bo" data-act="profile">Sửa hồ sơ &amp; quỹ phép</button>
+    </div>
+    <div class="tw"><table><thead><tr><th>STT</th><th>Loại nghỉ</th><th>Ngày nghỉ</th><th>Thời gian</th><th>Xác nhận</th></tr></thead><tbody id="lvBody"></tbody></table></div>
+  </section>
+
+  <section id="tab-pay" class="card hidden">
+    <div class="row" style="justify-content:space-between">
+      <h3 id="payTitle" style="margin:0;font-size:16px"></h3>
+      <div class="row" style="margin:0"><button class="ib" data-act="prev" aria-label="Tháng trước">&#9664;</button><button class="ib" data-act="next" aria-label="Tháng sau">&#9654;</button></div>
+    </div>
+    <div id="payNote" class="ks"></div>
+    <div class="net"><div class="ks">Có thể lĩnh (ước tính, chưa gồm thưởng phụ)</div><div class="kv" id="payNet">0</div></div>
+    <div id="payLines"></div>
+    <div class="sb" style="margin-top:14px">
+      <h4>Thiết lập lương</h4>
+      <p>Nhập một lần, lưu trên máy này. Ô nào để 0 thì không tính khoản đó.</p>
+      <div class="r2" id="payForm"></div>
+      <div class="fg"><label for="pUnpaid">Nghỉ không lương tháng này (ngày)</label><input class="fc" id="pUnpaid" inputmode="decimal" autocomplete="off" /></div>
+    </div>
+    <p class="ks">Số liệu ước tính để tham khảo, không thay thế phiếu lương của công ty.</p>
+  </section>
+
+  <section id="tab-records" class="card hidden">
+    <div class="row" style="justify-content:space-between">
+      <h3 style="margin:0;font-size:16px">Chi tiết &amp; xuất báo cáo</h3>
+      <div class="row" style="margin:0">
+        <button class="bp" data-act="csv">Xuất CSV</button>
+        <button class="bo" data-act="json">Sao lưu JSON</button>
+        <button class="bo" data-act="txt">Xuất TXT</button>
+        <button class="bo" data-act="tpl">Tệp mẫu</button>
+        <button class="bo" data-act="import">Nạp tệp</button>
+      </div>
+    </div>
+    <div class="fg"><input class="fc" id="search" placeholder="Tìm theo ngày (VD: 2026-11) hoặc ghi chú..." /></div>
+    <div class="tw"><table><thead><tr><th>Ngày</th><th>Loại</th><th>Khung giờ</th><th>Giờ OT/nghỉ</th><th>Hệ số</th><th>Ghi chú</th><th></th></tr></thead><tbody id="recBody"></tbody></table></div>
+  </section>
+
+  <section id="tab-gcal" class="card hidden">
+    <div class="sb">
+      <h4>Nhắc ghi chấm công</h4>
+      <p>Khi mở app, app nhắc nếu hôm nay hoặc các ngày trước chưa ghi. Muốn được nhắc cả khi không mở app, hãy xuất nhắc hằng ngày sang Google Calendar.</p>
+      <div class="row"><label style="font-size:13px"><input type="checkbox" id="rOn" /> Bật nhắc</label><input class="fc" type="time" id="rTime" style="width:auto" aria-label="Giờ nhắc" /></div>
+      <div class="row" style="margin:0"><button class="bp" data-act="notif">Bật thông báo</button><button class="bo" data-act="remIcs">Xuất nhắc hằng ngày (.ics)</button></div>
+      <div id="rStatus" class="ks" style="margin-top:8px"></div>
+    </div>
+    <h3 style="margin:0 0 10px;font-size:16px">Đồng bộ Google Calendar</h3>
+    <div class="sb">
+      <h4>1. Xuất tệp lịch (.ics)</h4>
+      <p>Mở tệp .ics bằng Google Calendar để thêm sự kiện, không cần cấu hình. Nút "Lưu &amp; mở Google Calendar" trong mỗi bản ghi cũng dùng cách này.</p>
+      <div class="row" style="margin:0"><button class="bp" data-act="ics" data-v="month">Xuất tháng đang xem</button><button class="bo" data-act="ics" data-v="year">Xuất cả năm</button></div>
+    </div>
+    <div class="sb">
+      <h4>2. Đồng bộ qua Google Calendar API</h4>
+      <p>Cần mở ứng dụng qua <code>https://</code> và có OAuth Client ID (Web). Phiên đăng nhập chỉ giữ trong bộ nhớ, tắt trang là hết.</p>
+      <div class="fg"><input class="fc" id="gcid" placeholder="xxxx.apps.googleusercontent.com" autocomplete="off" /></div>
+      <div class="row" style="margin:0">
+        <button class="bg" data-act="gconnect">Đăng nhập Google</button>
+        <button class="bp" id="gPush" data-act="gpush" disabled>Đẩy lên Google</button>
+        <button class="bo" id="gPull" data-act="gpull" disabled>Tải từ Google</button>
+      </div>
+      <div id="gStatus" style="font-size:12px;margin-top:8px;font-weight:600">Chưa kết nối.</div>
+    </div>
+    <div class="sb">
+      <h4>3. Xem Google Calendar trong ứng dụng</h4>
+      <div class="fg"><input class="fc" id="embed" placeholder="https://calendar.google.com/calendar/embed?src=..." autocomplete="off" /></div>
+      <div id="embedBox"></div>
+    </div>
+  </section>
+</main>
+
+<button class="fab" data-act="add">+ Ghi chấm công</button>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="file" accept=".json,.txt,application/json,text/plain" class="hidden" />
+
+<div class="mb" id="m-profile"><div class="md" role="dialog" aria-modal="true">
+  <h3>Hồ sơ nhân viên</h3>
+  <p style="font-size:12.5px;color:var(--mu);margin-top:0">Thông tin chỉ lưu trên thiết bị của bạn.</p>
+  <div class="fg"><label for="pName">Họ và tên *</label><input class="fc" id="pName" maxlength="80" autocomplete="off" /></div>
+  <div class="r2">
+    <div class="fg"><label for="pId">Mã nhân viên *</label><input class="fc" id="pId" maxlength="40" autocomplete="off" /></div>
+    <div class="fg"><label for="pQuota">Phép năm đang có (ngày)</label><input class="fc" id="pQuota" type="number" step="0.5" min="0" max="60" value="12" /></div>
+  </div>
+  <p class="ks" style="margin:-4px 0 11px">Phép năm: nhập số ngày đang có đến tháng này, app tự cộng thêm 1 ngày mỗi tháng (tháng 11 nhập 11, sang tháng 12 tự thành 12).</p>
+  <div class="fg"><label for="pCo">Tên công ty *</label><input class="fc" id="pCo" maxlength="100" autocomplete="off" /></div>
+  <div class="fg"><label for="pDep">Bộ phận / xưởng</label><input class="fc" id="pDep" maxlength="80" autocomplete="off" /></div>
+  <div class="acts"><button class="bp" data-act="saveProfile">Lưu hồ sơ</button><button class="ib" id="pClose" data-act="close">Đóng</button><button class="bo" data-act="import">Nạp tệp sao lưu</button></div>
+</div></div>
+
+<div class="mb" id="m-entry"><div class="md" role="dialog" aria-modal="true">
+  <h3 id="eTitle">Ghi nhận chấm công</h3>
+  <div id="exist"></div>
+  <input type="hidden" id="editId" />
+  <div class="r2">
+    <div class="fg"><label for="fDate">Ngày</label><input class="fc" type="date" id="fDate" /></div>
+    <div class="fg"><label for="fType">Phân loại</label><select class="fc" id="fType">
+      <option value="regular">Hành chính 17h (không OT)</option><option value="ot">Tăng ca OT</option><option value="leave">Nghỉ phép</option><option value="sunday">Đi làm Chủ nhật</option><option value="welfare">Đi làm phúc lợi (x2 công)</option><option value="welfareoff">Nghỉ phúc lợi (có lương)</option></select></div>
+  </div>
+  <div class="r2">
+    <div class="fg"><label for="fStart">Giờ bắt đầu</label><input class="fc" type="time" id="fStart" /></div>
+    <div class="fg"><label for="fEnd">Giờ kết thúc</label><input class="fc" type="time" id="fEnd" /></div>
+  </div>
+  <div class="r2">
+    <div class="fg"><label for="fHours" id="hLabel">Số giờ tăng ca thêm</label><input class="fc" type="text" inputmode="decimal" id="fHours" placeholder="VD: 1,5" autocomplete="off" />
+      <div id="hChips"><span class="nc" data-act="hrs" data-v="1">1 giờ</span><span class="nc" data-act="hrs" data-v="1.5">1,5 giờ</span><span class="nc" data-act="hrs" data-v="2">2 giờ</span><span class="nc" data-act="hrs" data-v="3">3 giờ</span><span class="nc" data-act="hrs" data-v="4">4 giờ</span></div></div>
+    <div class="fg"><label for="fMult">Hệ số lương</label><select class="fc" id="fMult"><option value="100">100%</option><option value="150">150% (tăng ca)</option><option value="200">200% (Chủ nhật)</option><option value="300">300% (lễ / phúc lợi)</option></select></div>
+  </div>
+  <div class="fg"><label for="fNote">Ghi chú</label><input class="fc" id="fNote" maxlength="200" />
+    <div><span class="nc" data-act="note" data-v="Làm hành chính về 17h">Về 17h</span><span class="nc" data-act="note" data-v="Tăng ca xưởng">Tăng ca xưởng</span><span class="nc" data-act="note" data-v="Đi làm full">Đi làm full</span><span class="nc" data-act="note" data-v="Nghỉ phép năm">Nghỉ phép năm</span></div></div>
+  <div class="acts"><button class="bp" data-act="save">Lưu bản ghi</button><button class="bo" data-act="saveG">Lưu &amp; mở Google Calendar</button><button class="ib" data-act="close">Đóng</button></div>
+</div></div>
+
+<div class="mb" id="m-bulk"><div class="md" role="dialog" aria-modal="true">
+  <h3>Điền ngày trống (về 17h)</h3>
+  <p style="font-size:12.5px;color:var(--mu);margin-top:0">Điền các ngày Thứ 2 đến Thứ 7 chưa có dữ liệu trong tháng đang xem. Bỏ qua Chủ nhật.</p>
+  <div class="fg"><label for="bScope">Phạm vi</label><select class="fc" id="bScope"><option value="today">Từ đầu tháng đến hôm nay</option><option value="full">Cả tháng</option></select></div>
+  <div class="acts"><button class="bp" data-act="bulkGo">Điền ngay</button><button class="ib" data-act="close">Đóng</button></div>
+</div></div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; // giờ địa phương, không lệch múi giờ
+const pd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const isDate = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && ymd(pd(s)) === s;
+const isTime = s => typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
+const vn = s => `${s.slice(8)}/${s.slice(5, 7)}/${s.slice(0, 4)}`;
+const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+const uid = () => crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '') : Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+const TYPES = {
+  regular: { n: 'Về 17h', s: '08:00', e: '17:00', h: 0, m: 100 },
+  ot: { n: 'Tăng ca', s: '17:00', e: '19:00', h: 2, m: 150 },
+  leave: { n: 'Nghỉ phép', s: '08:00', e: '17:00', h: 8, m: 100 },
+  sunday: { n: 'Chủ nhật', s: '08:00', e: '08:00', h: 0, m: 200 },
+  welfare: { n: 'Phúc lợi', s: '08:00', e: '17:00', h: 0, m: 150 },
+  welfareoff: { n: 'Nghỉ phúc lợi', s: '08:00', e: '17:00', h: 0, m: 100 }
+};
+const NOHRS = ['regular', 'welfareoff']; // loại không nhập số giờ
+const MULTS = [100, 150, 200, 300];
+const KEY = 'worklog.v2';
+let S = { profile: null, records: [], gcid: '', embed: '', remind: { on: true, time: '17:30', snooze: '', last: '' }, pay: { base: 0, senior: 0, cc: 0, xang: 0, dt: 0, kl: 0, an: 0, other: 0, union: 35000, tax: 0, unpaid: {} } };
+const curYM = () => ymd(new Date()).slice(0, 7);
+let view = new Date(); view.setDate(1);
+let filter = 'all', gToken = null, tab = 'calendar';
+
+/* ---------- Dữ liệu: kiểm tra & lưu ---------- */
+const str = (v, n) => String(v == null ? '' : v).trim().slice(0, n);
+function cleanProfile(p) {
+  if (!p || typeof p !== 'object') return null;
+  const q = Number(p.quota);
+  return { name: str(p.name, 80), empId: str(p.empId, 40), company: str(p.company, 100), dept: str(p.dept, 80), quota: isFinite(q) ? Math.min(60, Math.max(0, q)) : 0,
+    quotaMonth: /^\d{4}-(0[1-9]|1[0-2])$/.test(p.quotaMonth) ? p.quotaMonth : curYM() };
+}
+function cleanRec(r) {
+  if (!r || typeof r !== 'object' || !TYPES[r.type] || !isDate(r.date)) return null;
+  const T = TYPES[r.type], h = Number(r.hours), m = Number(r.mult);
+  return {
+    id: /^[0-9a-f]{8,64}$/.test(r.id) ? r.id : uid(), type: r.type, date: r.date,
+    start: isTime(r.start) ? r.start : T.s, end: isTime(r.end) ? r.end : T.e,
+    hours: NOHRS.includes(r.type) ? 0 : (isFinite(h) ? Math.min(24, Math.max(0, h)) : T.h), mult: MULTS.includes(m) ? m : T.m,
+    note: str(r.note, 200), signed: r.signed === true
+  };
+}
+function load() {
+  try {
+    const r = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (r) { S.profile = cleanProfile(r.profile); S.records = (r.records || []).map(cleanRec).filter(Boolean); S.gcid = str(r.gcid, 200); S.embed = str(r.embed, 600); const q = r.remind || {}; S.remind = { on: q.on !== false, time: isTime(q.time) ? q.time : '17:30', snooze: isDate(q.snooze) ? q.snooze : '', last: isDate(q.last) ? q.last : '' }; S.pay = cleanPay(r.pay); }
+  } catch (e) { /* dữ liệu hỏng: bắt đầu lại */ }
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Không lưu được dữ liệu (bộ nhớ đầy?)'); } }
+let tt; function toast(m) { const t = $('#toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(tt); tt = setTimeout(() => t.style.display = 'none', 2600); }
+const byDate = () => { const o = {}; S.records.forEach(r => (o[r.date] = o[r.date] || []).push(r)); return o; };
+const title = r => `${TYPES[r.type].n}${r.hours ? ' ' + r.hours + 'h' : ''}${S.profile && S.profile.company ? ' - ' + S.profile.company : ''}`;
+
+/* Phép năm tích lũy: số nhập lúc thiết lập + 1 ngày cho mỗi tháng trôi qua */
+function entitle(y) {
+  const p = S.profile, now = new Date(), cy = now.getFullYear(), cm = now.getMonth() + 1;
+  const std = y < cy ? 12 : (y === cy ? cm : 0);
+  if (!p) return std;
+  const [by, bm] = p.quotaMonth.split('-').map(Number);
+  if (y !== by) return std;
+  return p.quota + Math.max(0, (y < cy ? 12 : y === cy ? cm : bm) - bm);
+}
+
+/* ---------- Hiển thị ---------- */
+function renderAll() { renderHead(); renderKpi(); renderCal(); if (tab === 'leave') renderLeave(); if (tab === 'records') renderRecs(); if (tab === 'pay') renderPay(); checkRemind(); }
+function renderHead() {
+  const p = S.profile;
+  $('#company').textContent = p && p.company ? p.company : 'Chưa thiết lập công ty';
+  $('#empChip').textContent = p && p.name ? p.name : 'Thiết lập hồ sơ';
+}
+function kpi(label, val, sub, color, bg, pct) {
+  const c = el('div', 'kpi'), b = el('span', 'kb', label);
+  b.style.color = color; b.style.background = bg;
+  c.append(b, el('div', 'kv', val), el('div', 'ks', sub));
+  if (pct != null) { const w = el('div', 'prog'), i = el('i'); i.style.width = Math.min(100, pct) + '%'; w.append(i); c.append(w); }
+  return c;
+}
+function renderKpi() {
+  const y = view.getFullYear(), pre = `${y}-${pad(view.getMonth() + 1)}-`;
+  const q = entitle(y);
+  const used = S.records.filter(r => r.type === 'leave' && r.date.startsWith(y + '-')).reduce((a, r) => a + r.hours, 0) / 8;
+  const mr = S.records.filter(r => r.date.startsWith(pre));
+  const sum = t => mr.filter(r => r.type === t).reduce((a, r) => a + r.hours, 0);
+  const g = $('#kpis'); g.replaceChildren(
+    kpi('Phép năm ' + y, `${used}/${q} ngày`, (q >= used ? `Còn ${q - used} ngày` : `Vượt ${used - q} ngày`), '#DC2626', '#FEE2E2', q ? used / q * 100 : 0),
+    kpi('Tăng ca', sum('ot') + 'h', 'Tháng đang xem', '#B45309', '#FEF3C7'),
+    kpi('Chủ nhật', sum('sunday') + 'h', 'Tháng đang xem', '#7C3AED', '#EDE9FE'),
+    kpi('Phúc lợi', (mr.filter(r => r.type === 'welfare' || r.type === 'welfareoff').length) + ' ngày', mr.some(r => r.type === 'welfare') ? 'Đi làm x2 công' + (sum('welfare') ? ` + ${sum('welfare')}h tăng ca` : '') : mr.some(r => r.type === 'welfareoff') ? 'Nghỉ có lương' : 'Chưa ghi', '#2563EB', '#DBEAFE'),
+    kpi('Về 17h', mr.filter(r => r.type === 'regular').length + ' ngày', 'Không tăng ca', '#0F766E', '#CCFBF1'));
+}
+const fh = n => String(n).replace('.', ',');
+function tagText(r) { // nhãn ngắn để vừa ô lịch trên điện thoại, luôn thấy số giờ
+  const h = r.hours ? fh(r.hours) + 'h' : '';
+  switch (r.type) {
+    case 'regular': return 'Về 17h';
+    case 'ot': return 'TC ' + h;
+    case 'sunday': return 'CN ' + h;
+    case 'leave': return r.hours === 8 ? 'Phép' : 'Phép ' + h;
+    case 'welfare': return h ? 'PL +' + h : 'PL x2';
+    default: return 'Nghỉ PL';
+  }
+}
+function renderCal() {
+  const y = view.getFullYear(), m = view.getMonth();
+  $('#monthTitle').textContent = `Tháng ${m + 1}/${y}`;
+  const f = $('#filters'); f.replaceChildren();
+  [['all', 'Tất cả'], ['ot', 'Tăng ca OT'], ['leave', 'Nghỉ phép'], ['sunday', 'Chủ nhật'], ['welfare', 'Phúc lợi'], ['regular', 'Về 17h']].forEach(([k, t]) => {
+    const b = el('button', 'pill' + (filter === k ? ' on' : ''), t); b.dataset.act = 'filter'; b.dataset.v = k; f.append(b);
+  });
+  const qm = $('#qm'); qm.replaceChildren();
+  const cnt = {}; S.records.filter(r => r.type === 'leave' && r.date.startsWith(y + '-')).forEach(r => { const k = +r.date.slice(5, 7); cnt[k] = (cnt[k] || 0) + 1; });
+  if (Object.keys(cnt).length) { qm.append(el('span', 'ks', 'Tháng có nghỉ phép:')); Object.keys(cnt).forEach(k => { const b = el('button', 'qm', `T${k} (${cnt[k]})`); b.dataset.act = 'goto'; b.dataset.v = k; qm.append(b); }); }
+  const g = $('#grid'); g.replaceChildren();
+  ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].forEach((t, i) => g.append(el('div', 'dow' + (i === 6 ? ' s' : ''), t)));
+  const off = (new Date(y, m, 1).getDay() + 6) % 7, total = Math.ceil((off + new Date(y, m + 1, 0).getDate()) / 7) * 7;
+  const today = ymd(new Date()), by = byDate();
+  for (let i = 0; i < total; i++) {
+    const d = new Date(y, m, 1 - off + i), k = ymd(d), sun = d.getDay() === 0, cur = d.getMonth() === m;
+    const c = el('div', 'cell' + (cur ? '' : ' o') + (k === today ? ' t' : '') + (sun ? ' sn' : '')); c.dataset.date = k;
+    const top = el('div', 'ct'); top.append(el('span', 'dn' + (sun ? ' s' : ''), d.getDate()));
+    const rs = by[k] || [];
+    if (cur && !sun && !rs.length) { const b = el('button', 'q17', '17h'); b.dataset.act = 'q17'; b.dataset.v = k; top.append(b); }
+    c.append(top);
+    rs.filter(r => filter === 'all' || r.type === filter || (filter === 'welfare' && r.type === 'welfareoff')).slice(0, 3).forEach(r => c.append(el('div', 'ev ev-' + r.type, tagText(r))));
+    g.append(c);
+  }
+}
+function renderLeave() {
+  const y = view.getFullYear(), p = S.profile || {};
+  $('#lvTitle').textContent = 'Thẻ xin nghỉ năm ' + y;
+  $('#lvSub').textContent = [p.name, p.empId, p.company, p.dept].filter(Boolean).join(' • ') + ` • Phép tích lũy ${entitle(y)} ngày (tự +1 mỗi tháng)`;
+  const b = $('#lvBody'); b.replaceChildren();
+  const rs = S.records.filter(r => r.type === 'leave' && r.date.startsWith(y + '-')).sort((a, c) => a.date.localeCompare(c.date));
+  if (!rs.length) { const tr = el('tr'), td = el('td', 'empty', 'Chưa có ngày nghỉ phép nào trong năm.'); td.colSpan = 5; tr.append(td); b.append(tr); return; }
+  rs.forEach((r, i) => {
+    const tr = el('tr');
+    [i + 1, 'Nghỉ phép năm', `${DOW[pd(r.date).getDay()]}, ${vn(r.date)}`, `${r.start}–${r.end} (${r.hours}h)`].forEach(x => tr.append(el('td', null, x)));
+    const td = el('td'), s = el('button', r.signed ? 'ib ok' : 'ib pend', r.signed ? 'Đã ký' : 'Chờ ký'); s.dataset.act = 'sign'; s.dataset.v = r.id; td.append(s); tr.append(td); b.append(tr);
+  });
+}
+function renderRecs() {
+  const q = $('#search').value.trim().toLowerCase(), b = $('#recBody'); b.replaceChildren();
+  const rs = S.records.filter(r => !q || r.date.includes(q) || r.note.toLowerCase().includes(q)).sort((a, c) => c.date.localeCompare(a.date) || c.start.localeCompare(a.start));
+  if (!rs.length) { const tr = el('tr'), td = el('td', 'empty', 'Không có bản ghi.'); td.colSpan = 7; tr.append(td); b.append(tr); return; }
+  rs.slice(0, 500).forEach(r => {
+    const tr = el('tr');
+    [vn(r.date), TYPES[r.type].n, `${r.start}–${r.end}`, r.hours, r.mult + '%', r.note].forEach(x => tr.append(el('td', null, x)));
+    const td = el('td'); td.style.whiteSpace = 'nowrap';
+    [['edit', 'Sửa'], ['del', 'Xóa']].forEach(([a, t]) => { const x = el('button', 'ib', t); x.dataset.act = a; x.dataset.v = r.id; td.append(x, ' '); });
+    tr.append(td); b.append(tr);
+  });
+  if (rs.length > 500) toast('Chỉ hiển thị 500 bản ghi đầu, hãy dùng ô tìm kiếm.');
+}
+
+/* ---------- Hộp thoại ---------- */
+const openM = id => { $('#m-' + id).classList.add('open'); };
+const closeM = () => document.querySelectorAll('.mb.open').forEach(m => m.classList.remove('open'));
+const AUTO = ['ot', 'sunday']; // loại có giờ kết thúc = giờ bắt đầu + số giờ
+const parseHours = v => { const s = String(v).trim().replace(',', '.'); return s === '' ? 0 : Number(s); };
+const toMin = s => { const [a, b] = s.split(':').map(Number); return a * 60 + b; };
+const fromMin = n => `${pad(Math.floor(n / 60))}:${pad(n % 60)}`;
+function syncHoursUI() {
+  const t = $('#fType').value, reg = NOHRS.includes(t), f = $('#fHours');
+  f.disabled = reg; f.classList.toggle('hl', !reg); if (reg) f.value = 0;
+  $('#hChips').classList.toggle('hidden', reg || t === 'leave');
+  $('#hLabel').textContent = { regular: 'Số giờ tăng ca thêm (hành chính = 0)', ot: 'Số giờ tăng ca thêm', sunday: 'Số giờ tăng ca thêm (Chủ nhật)', welfare: 'Số giờ tăng ca thêm (phúc lợi đã tính x2 công, 0 = không tăng ca)', welfareoff: 'Số giờ (nghỉ phúc lợi có lương, không cần nhập)', leave: 'Số giờ nghỉ (8 giờ = 1 ngày)' }[t];
+}
+function endFromHours() {
+  if (!AUTO.includes($('#fType').value) || !isTime($('#fStart').value)) return;
+  const h = parseHours($('#fHours').value);
+  $('#fEnd').value = fromMin(Math.min(1439, toMin($('#fStart').value) + Math.round((isFinite(h) ? h : 0) * 60)));
+}
+function hoursFromEnd() {
+  if (!AUTO.includes($('#fType').value) || !isTime($('#fStart').value) || !isTime($('#fEnd').value)) return;
+  const d = toMin($('#fEnd').value) - toMin($('#fStart').value); if (d > 0) $('#fHours').value = Math.round(d / 30) / 2;
+}
+function applyType(t) {
+  const T = TYPES[t]; $('#fStart').value = T.s; $('#fEnd').value = T.e; $('#fMult').value = T.m;
+  $('#fHours').value = NOHRS.includes(t) || t === 'welfare' ? 0 : (T.h || ''); syncHoursUI(); endFromHours();
+}
+function openEntry(date, id) {
+  const r = id ? S.records.find(x => x.id === id) : null, d = r ? r.date : date;
+  $('#editId').value = r ? r.id : ''; $('#fDate').value = d;
+  $('#eTitle').textContent = r ? 'Sửa bản ghi' : 'Ghi nhận chấm công';
+  if (r) { $('#fType').value = r.type; $('#fStart').value = r.start; $('#fEnd').value = r.end; $('#fHours').value = r.hours; $('#fMult').value = r.mult; $('#fNote').value = r.note; syncHoursUI(); }
+  else { const t = pd(d).getDay() === 0 ? 'sunday' : 'regular'; $('#fType').value = t; applyType(t); $('#fNote').value = ''; }
+  const ex = $('#exist'); ex.replaceChildren();
+  (byDate()[d] || []).filter(x => !r || x.id !== r.id).forEach(x => {
+    const row = el('div', 'ex'); row.append(el('span', null, `${TYPES[x.type].n} ${x.start}–${x.end}${x.hours ? ` (${x.hours}h)` : ''}`));
+    const a = el('span'); [['edit', 'Sửa'], ['del', 'Xóa']].forEach(([k, t]) => { const b = el('button', 'ib', t); b.dataset.act = k; b.dataset.v = x.id; a.append(b, ' '); }); row.append(a); ex.append(row);
+  });
+  openM('entry');
+}
+function saveEntry(openG) {
+  const ty = $('#fType').value, hv = NOHRS.includes(ty) ? 0 : parseHours($('#fHours').value);
+  if (!isFinite(hv) || hv < 0 || hv > 24) return toast('Số giờ không hợp lệ');
+  if (['ot', 'sunday', 'leave'].includes(ty) && hv <= 0) return toast(ty === 'leave' ? 'Hãy nhập số giờ nghỉ' : 'Hãy nhập số giờ tăng ca');
+  const rec = cleanRec({ id: $('#editId').value, type: $('#fType').value, date: $('#fDate').value, start: $('#fStart').value, end: $('#fEnd').value, hours: hv, mult: $('#fMult').value, note: $('#fNote').value });
+  if (!rec) return toast('Ngày hoặc phân loại không hợp lệ');
+  if (!isTime($('#fStart').value) || !isTime($('#fEnd').value)) return toast('Hãy nhập giờ bắt đầu và kết thúc');
+  if (rec.end <= rec.start) return toast('Giờ kết thúc phải sau giờ bắt đầu');
+  const i = S.records.findIndex(x => x.id === rec.id);
+  if (i >= 0) { rec.signed = S.records[i].signed; S.records[i] = rec; } else S.records.push(rec);
+  save(); closeM();
+  const d = pd(rec.date); if (d.getMonth() !== view.getMonth() || d.getFullYear() !== view.getFullYear()) { view = new Date(d.getFullYear(), d.getMonth(), 1); }
+  renderAll(); toast('Đã lưu');
+  if (openG) {
+    const dt = (x, t) => x.replace(/-/g, '') + 'T' + t.replace(':', '') + '00';
+    const u = new URL('https://calendar.google.com/calendar/render');
+    u.searchParams.set('action', 'TEMPLATE'); u.searchParams.set('text', title(rec));
+    u.searchParams.set('dates', dt(rec.date, rec.start) + '/' + dt(rec.date, rec.end)); u.searchParams.set('details', rec.note);
+    window.open(u.toString(), '_blank', 'noopener,noreferrer');
+  }
+}
+function openProfile() {
+  const p = S.profile || {}, first = !S.profile;
+  $('#pName').value = p.name || ''; $('#pId').value = p.empId || ''; $('#pCo').value = p.company || ''; $('#pDep').value = p.dept || ''; $('#pQuota').value = S.profile ? entitle(new Date().getFullYear()) : new Date().getMonth() + 1;
+  $('#pClose').classList.toggle('hidden', first); openM('profile');
+}
+function saveProfile() {
+  const p = cleanProfile({ name: $('#pName').value, empId: $('#pId').value, company: $('#pCo').value, dept: $('#pDep').value, quota: $('#pQuota').value });
+  if (!p.name || !p.empId || !p.company) return toast('Hãy điền họ tên, mã nhân viên và công ty');
+  const old = S.profile;
+  if (old && p.quota === entitle(new Date().getFullYear())) { p.quota = old.quota; p.quotaMonth = old.quotaMonth; } else p.quotaMonth = curYM();
+  S.profile = p; save(); closeM(); renderAll(); toast('Đã lưu hồ sơ');
+}
+function bulkGo() {
+  const y = view.getFullYear(), m = view.getMonth(), last = new Date(y, m + 1, 0).getDate(), now = new Date(), by = byDate();
+  let end = last; if ($('#bScope').value === 'today') end = (y === now.getFullYear() && m === now.getMonth()) ? now.getDate() : (new Date(y, m, 1) < now ? last : 0);
+  let n = 0; const T = TYPES.regular;
+  for (let d = 1; d <= end; d++) {
+    const dt = new Date(y, m, d), k = ymd(dt);
+    if (dt.getDay() === 0 || (by[k] && by[k].length)) continue;
+    S.records.push({ id: uid(), type: 'regular', date: k, start: T.s, end: T.e, hours: T.h, mult: T.m, note: 'Làm hành chính về 17h', signed: false }); n++;
+  }
+  save(); closeM(); renderAll(); toast(n ? `Đã điền ${n} ngày` : 'Không có ngày trống để điền');
+}
+
+/* ---------- Xuất / nhập ---------- */
+function dl(name, mime, text) {
+  const u = URL.createObjectURL(new Blob([text], { type: mime })), a = document.createElement('a');
+  a.href = u; a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+}
+function csv() {
+  const cell = v => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; }; // chống chèn công thức Excel
+  const rows = [['Ngày', 'Loại', 'Bắt đầu', 'Kết thúc', 'Số giờ OT/nghỉ', 'Hệ số %', 'Ghi chú', 'Xác nhận']];
+  [...S.records].sort((a, b) => a.date.localeCompare(b.date)).forEach(r => rows.push([r.date, TYPES[r.type].n, r.start, r.end, r.hours, r.mult, r.note, r.signed ? 'Đã ký' : '']));
+  dl('worklog.csv', 'text/csv;charset=utf-8', '\ufeff' + rows.map(r => r.map(cell).join(',')).join('\r\n'));
+}
+function ics(scope) {
+  const y = view.getFullYear(), pre = scope === 'year' ? y + '-' : `${y}-${pad(view.getMonth() + 1)}-`;
+  const rs = S.records.filter(r => r.date.startsWith(pre));
+  if (!rs.length) return toast('Không có dữ liệu để xuất');
+  const esc = s => String(s).replace(/[\\;,]/g, '\\$&').replace(/\r?\n/g, '\\n');
+  const dt = (d, t) => d.replace(/-/g, '') + 'T' + t.replace(':', '') + '00';
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//WorkLog//VI//EN', 'CALSCALE:GREGORIAN'];
+  rs.forEach(r => L.push('BEGIN:VEVENT', `UID:${r.id}@worklog`, `DTSTAMP:${stamp}`, `DTSTART:${dt(r.date, r.start)}`, `DTEND:${dt(r.date, r.end)}`, 'SUMMARY:' + esc(title(r)), 'DESCRIPTION:' + esc(`${r.mult}% - ${r.note}`), 'END:VEVENT'));
+  L.push('END:VCALENDAR'); dl(`worklog-${scope === 'year' ? y : pre.slice(0, 7)}.ics`, 'text/calendar;charset=utf-8', L.join('\r\n'));
+}
+function importFile(f) {
+  if (!f) return;
+  if (f.size > 5e6) return toast('Tệp quá lớn');
+  const rd = new FileReader();
+  rd.onload = () => {
+    if (!/^\s*[\[{]/.test(String(rd.result).replace(/^\uFEFF/, ''))) return importTxt(String(rd.result));
+    try {
+      const d = JSON.parse(rd.result), arr = Array.isArray(d) ? d : (d.records || d.entries || []);
+      const rs = arr.map(cleanRec).filter(Boolean);
+      if (!rs.length && !(d && d.profile)) return toast('Tệp không có dữ liệu hợp lệ');
+      if (!confirm(`Gộp ${rs.length} bản ghi vào dữ liệu hiện tại? Bản ghi trùng mã sẽ bị ghi đè.`)) return;
+      rs.forEach(r => { const i = S.records.findIndex(x => x.id === r.id); if (i >= 0) S.records[i] = r; else S.records.push(r); });
+      if (d && d.profile && !S.profile) S.profile = cleanProfile(d.profile);
+      if (d && d.pay && !S.pay.base) S.pay = cleanPay(d.pay);
+      save(); closeM(); renderAll(); toast(`Đã nạp ${rs.length} bản ghi`);
+    } catch (e) { toast('Tệp JSON không hợp lệ'); }
+  };
+  rd.readAsText(f);
+}
+
+/* ---------- Tệp văn bản: xuất / nạp / mẫu ---------- */
+const TXT_NAME = { regular: 'về 17h', ot: 'tăng ca', leave: 'nghỉ phép', sunday: 'chủ nhật', welfare: 'phúc lợi', welfareoff: 'nghỉ phúc lợi' };
+const noDia = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+function txtType(pre) {
+  const s = ' ' + noDia(pre).replace(/[^a-z0-9]+/g, ' ') + ' ';
+  if (/ nghi (phuc loi|pl) /.test(s)) return 'welfareoff';
+  if (/ (phuc loi|pl) /.test(s)) return 'welfare';
+  if (/ (nghi )?phep /.test(s)) return 'leave';
+  if (/ (chu nhat|cn) /.test(s)) return 'sunday';
+  if (/ (tang ca|tc|ot) /.test(s)) return 'ot';
+  if (/ (ve 17h|ve 17|17h|hanh chinh) /.test(s)) return 'regular';
+  return null;
+}
+function parseTxt(text) {
+  const items = [], errs = [];
+  text.replace(/^\uFEFF/, '').split(/\r?\n/).slice(0, 5000).forEach((raw, i) => {
+    let line = raw.trim(); if (!line || line[0] === '#') return;
+    const bad = m => { errs.push(`Dòng ${i + 1}: ${m}`); };
+    let note = ''; const bar = line.indexOf('|'); if (bar >= 0) { note = str(line.slice(bar + 1), 200); line = line.slice(0, bar).trim(); }
+    let mm = line.match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/), d, m, y;
+    if (mm) { d = +mm[1]; m = +mm[2]; y = +mm[3]; }
+    else if ((mm = line.match(/(\d{4})-(\d{2})-(\d{2})/))) { y = +mm[1]; m = +mm[2]; d = +mm[3]; }
+    else return bad('không thấy ngày dd/mm/yyyy');
+    const date = `${y}-${pad(m)}-${pad(d)}`; if (!isDate(date)) return bad('ngày không hợp lệ');
+    const rest = line.slice(mm.index + mm[0].length), type = txtType(line.slice(0, mm.index)) || txtType(rest);
+    if (!type) return bad('không nhận ra loại (về 17h, tăng ca, chủ nhật, phúc lợi, nghỉ phúc lợi, nghỉ phép)');
+    const hm = rest.match(/(\d+(?:[.,]\d+)?)/); let hours = hm ? Number(hm[1].replace(',', '.')) : NaN;
+    if (NOHRS.includes(type)) hours = 0;
+    else if (type === 'welfare') hours = isFinite(hours) ? hours : 0;
+    else if (type === 'leave') hours = isFinite(hours) ? hours : 8;
+    else if (!isFinite(hours) || hours <= 0) return bad(`thiếu số giờ (VD: ${TXT_NAME[type]} ${vn(date)} - 2)`);
+    if (hours < 0 || hours > 24) return bad('số giờ không hợp lệ');
+    const T = TYPES[type]; let end = T.e;
+    if (type === 'ot' || type === 'sunday') end = fromMin(Math.min(1439, toMin(T.s) + Math.round(hours * 60)));
+    const rec = cleanRec({ type, date, start: T.s, end, hours, mult: T.m, note });
+    if (rec) items.push(rec);
+  });
+  return { items, errs };
+}
+function txtLines() {
+  const L = ['# WorkLog - dữ liệu chấm công, mỗi dòng một bản ghi', '# Cú pháp: loại dd/mm/yyyy - số giờ | ghi chú', ''];
+  [...S.records].sort((a, b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start)).forEach(r => {
+    let s = `${TXT_NAME[r.type]} ${vn(r.date)}`;
+    if (!NOHRS.includes(r.type) && r.hours !== (r.type === 'leave' ? 8 : 0)) s += ' - ' + fh(r.hours);
+    if (r.note) s += ' | ' + r.note.replace(/[\r\n|]/g, ' ');
+    L.push(s);
+  });
+  return L;
+}
+function exportTxt() { if (!S.records.length) return toast('Chưa có dữ liệu để xuất'); dl('worklog.txt', 'text/plain;charset=utf-8', '\ufeff' + txtLines().join('\r\n')); }
+function templateTxt() {
+  const y = view.getFullYear(), m = view.getMonth() + 1, d = n => `${pad(n)}/${pad(m)}/${y}`;
+  const L = ['# MẪU NHẬP DỮ LIỆU WORKLOG',
+    '# Mỗi dòng một bản ghi. Dòng bắt đầu bằng # là ghi chú, app bỏ qua.',
+    '# Cú pháp:  loại  dd/mm/yyyy  [- số giờ]  [| ghi chú]',
+    '# Các loại: về 17h | tăng ca | chủ nhật | phúc lợi | nghỉ phúc lợi | nghỉ phép',
+    '# - tăng ca, chủ nhật: bắt buộc có số giờ tăng ca (1, 1,5, 2, 3, 4...)',
+    '# - phúc lợi: số giờ tăng ca là tùy chọn, không ghi = không tăng ca',
+    '# - nghỉ phép: số giờ nghỉ, không ghi = cả ngày (8 giờ), nửa ngày = 4',
+    '# - về 17h, nghỉ phúc lợi: không cần số giờ',
+    '# Cũng nhận kiểu viết: tăng ca ngày dd/mm/yyyy-2',
+    '# Ghi trùng ngày và loại với dữ liệu đã có sẽ cập nhật bản cũ.',
+    '# Bỏ dấu # ở đầu các dòng ví dụ bên dưới để dùng:', '',
+    `# về 17h ${d(2)}`, `# tăng ca ${d(3)} - 2`, `# tăng ca ngày ${d(4)}-1,5`, `# nghỉ phép năm ngày ${d(5)}`,
+    `# nghỉ phép ${d(6)} - 4 | nghỉ nửa ngày`, `# phúc lợi ${d(7)} - 2`, `# chủ nhật ${d(8)} - 4`, `# nghỉ phúc lợi ${d(14)}`, ''];
+  dl('worklog-mau.txt', 'text/plain;charset=utf-8', '\ufeff' + L.join('\r\n'));
+}
+function importTxt(text) {
+  const { items, errs } = parseTxt(text);
+  if (!items.length) return toast(errs.length ? errs[0] : 'Tệp không có dòng dữ liệu nào');
+  const work = S.records.map(r => ({ ...r })); let add = 0, upd = 0, same = 0;
+  items.forEach(r => {
+    const e = work.find(x => x.date === r.date && x.type === r.type);
+    if (!e) { work.push(r); add++; return; }
+    const nn = r.note || e.note;
+    if (e.hours === r.hours && e.note === nn) { same++; return; }
+    e.hours = r.hours; e.start = r.start; e.end = r.end; e.note = nn; upd++;
+  });
+  const msg = `Thêm ${add}, cập nhật ${upd}, giữ nguyên ${same} bản ghi.` + (errs.length ? `\n\nBỏ qua ${errs.length} dòng lỗi:\n` + errs.slice(0, 5).join('\n') : '') + '\n\nTiếp tục?';
+  if (!confirm(msg)) return;
+  S.records = work; save(); closeM(); renderAll(); toast(`Đã nạp: thêm ${add}, cập nhật ${upd}`);
+}
+
+/* ---------- Google Calendar API ---------- */
+const GAPI = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+const gstat = (t, bad) => { const s = $('#gStatus'); s.textContent = t; s.style.color = bad ? '#B91C1C' : '#1E3A8A'; };
+function gUI() { $('#gPush').disabled = $('#gPull').disabled = !gToken; }
+function loadGsi() {
+  return new Promise((ok, no) => {
+    if (window.google && google.accounts && google.accounts.oauth2) return ok();
+    const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.onload = ok; s.onerror = () => no(new Error('Không tải được thư viện đăng nhập Google')); document.head.append(s);
+  });
+}
+async function gconnect() {
+  const id = $('#gcid').value.trim();
+  if (!/^[\w-]+(\.[\w-]+)*\.apps\.googleusercontent\.com$/.test(id)) return gstat('Client ID không hợp lệ.', true);
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost') return gstat('Cần mở ứng dụng qua https:// để đăng nhập Google.', true);
+  try {
+    await loadGsi();
+    google.accounts.oauth2.initTokenClient({
+      client_id: id, scope: 'https://www.googleapis.com/auth/calendar.events',
+      callback: r => { if (r.error || !r.access_token) { gstat('Đăng nhập thất bại hoặc bị hủy.', true); return; } gToken = r.access_token; gUI(); gstat('Đã kết nối Google Calendar.'); }
+    }).requestAccessToken();
+  } catch (e) { gstat(e.message, true); }
+}
+async function gf(url, opt = {}) {
+  const r = await fetch(url, { ...opt, headers: { Authorization: 'Bearer ' + gToken, 'Content-Type': 'application/json' } });
+  if (r.status === 401) { gToken = null; gUI(); throw new Error('Phiên đăng nhập đã hết hạn, hãy đăng nhập lại.'); }
+  return r;
+}
+async function gpush() {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ho_Chi_Minh';
+  let ok = 0, bad = 0; gstat('Đang đẩy dữ liệu...');
+  try {
+    for (const r of S.records) {
+      const ev = { id: r.id, summary: title(r), description: `${r.mult}% - ${r.note}`,
+        start: { dateTime: `${r.date}T${r.start}:00`, timeZone: tz }, end: { dateTime: `${r.date}T${r.end}:00`, timeZone: tz },
+        extendedProperties: { private: { wl: '1', wlType: r.type, wlHours: String(r.hours), wlMult: String(r.mult), wlNote: r.note, wlSigned: r.signed ? '1' : '0' } } };
+      let res = await gf(GAPI, { method: 'POST', body: JSON.stringify(ev) });
+      if (res.status === 409) res = await gf(`${GAPI}/${r.id}`, { method: 'PUT', body: JSON.stringify(ev) });
+      res.ok ? ok++ : bad++;
+    }
+    gstat(`Đã đẩy ${ok} bản ghi${bad ? `, lỗi ${bad}` : ''}.`, !!bad);
+  } catch (e) { gstat(e.message, true); }
+}
+async function gpull() {
+  let tok = '', n = 0; gstat('Đang tải dữ liệu...');
+  try {
+    do {
+      const u = new URL(GAPI); u.searchParams.set('privateExtendedProperty', 'wl=1'); u.searchParams.set('maxResults', '250'); u.searchParams.set('singleEvents', 'true');
+      if (tok) u.searchParams.set('pageToken', tok);
+      const res = await gf(u.toString()); if (!res.ok) throw new Error('Google trả về lỗi ' + res.status);
+      const d = await res.json(); tok = d.nextPageToken || '';
+      (d.items || []).forEach(ev => {
+        const p = (ev.extendedProperties || {}).private || {}, s = ev.start && ev.start.dateTime, e = ev.end && ev.end.dateTime;
+        if (!s || !e || ev.status === 'cancelled') return;
+        const r = cleanRec({ id: ev.id, type: p.wlType, date: s.slice(0, 10), start: s.slice(11, 16), end: e.slice(11, 16), hours: p.wlHours, mult: p.wlMult, note: p.wlNote, signed: p.wlSigned === '1' });
+        if (!r || r.id !== ev.id) return;
+        const i = S.records.findIndex(x => x.id === r.id); if (i >= 0) S.records[i] = r; else S.records.push(r); n++;
+      });
+    } while (tok);
+    save(); renderAll(); gstat(`Đã tải ${n} bản ghi từ Google.`);
+  } catch (e) { gstat(e.message, true); }
+}
+function renderEmbed() {
+  const b = $('#embedBox'); b.replaceChildren(); const v = $('#embed').value.trim(); if (!v) return;
+  try {
+    const u = new URL(v);
+    if (u.protocol !== 'https:' || u.hostname !== 'calendar.google.com' || !u.pathname.startsWith('/calendar/embed')) throw 0;
+    const f = document.createElement('iframe'); f.src = u.toString(); f.title = 'Google Calendar'; f.loading = 'lazy'; f.referrerPolicy = 'no-referrer';
+    f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups'); b.append(f);
+  } catch (e) { b.append(el('div', 'empty', 'Liên kết phải bắt đầu bằng https://calendar.google.com/calendar/embed')); }
+}
+
+/* ---------- Tính lương (demo) ---------- */
+const PAYF = [['base', 'Lương cơ bản'], ['senior', 'Phụ cấp thâm niên'], ['cc', 'Trợ cấp chuyên cần'], ['xang', 'Trợ cấp xăng'], ['dt', 'Thưởng doanh thu'], ['kl', 'Thưởng kỷ luật'], ['an', 'Trợ cấp tiền ăn'], ['other', 'Khoản khác'], ['union', 'Đoàn phí'], ['tax', 'Thuế TNCN']];
+const fmt = n => Math.round(n).toLocaleString('vi-VN');
+const parseMoney = v => Math.min(1e9, Number(String(v).replace(/[^\d]/g, '')) || 0);
+function cleanPay(p) {
+  p = p && typeof p === 'object' ? p : {};
+  const o = { unpaid: {} };
+  PAYF.forEach(([k]) => { o[k] = k in p ? parseMoney(p[k]) : (k === 'union' ? 35000 : 0); });
+  if (p.unpaid && typeof p.unpaid === 'object') Object.keys(p.unpaid).forEach(k => { const v = Number(p.unpaid[k]); if (/^\d{4}-\d{2}$/.test(k) && isFinite(v) && v > 0 && v <= 31) o.unpaid[k] = v; });
+  return o;
+}
+function calcPay(y, m) {
+  const P = S.pay, dim = new Date(y, m + 1, 0).getDate(), key = `${y}-${pad(m + 1)}`;
+  let sun = 0; for (let d = 1; d <= dim; d++) if (new Date(y, m, d).getDay() === 0) sun++;
+  const std = Math.max(26, dim - sun), unpaid = P.unpaid[key] || 0, cong = Math.max(0, std - unpaid);
+  const day = P.base / 26, otBase = (P.base + P.senior) / 26 / 8, bh = P.base + P.senior;
+  const rs = S.records.filter(r => r.date.startsWith(key + '-')), by = byDate();
+  const L = [], add = (name, sub, amt) => { if (amt > 0) L.push({ name, sub, amt: Math.round(amt) }); };
+  add('Lương ngày công', `${cong} công × ${fmt(day)}`, day * cong);
+  const wk = rs.filter(r => r.type === 'welfare').length;
+  add('Phúc lợi đi làm (thêm 1 công)', `${wk} ngày × ${fmt(day)}`, day * wk);
+  [['ot', 'Tăng ca ngày thường'], ['sunday', 'Làm Chủ nhật'], ['welfare', 'Tăng ca ngày phúc lợi']].forEach(([t, n]) => {
+    const a = rs.filter(r => r.type === t), hrs = a.reduce((s, r) => s + r.hours, 0), ms = [...new Set(a.map(r => r.mult))];
+    add(n, `${hrs} giờ × ${fmt(otBase)} đ/giờ${ms.length === 1 ? ' × ' + ms[0] + '%' : ''}`, a.reduce((s, r) => s + r.hours * otBase * r.mult / 100, 0));
+  });
+  [['senior', 'Phụ cấp thâm niên'], ['cc', 'Trợ cấp chuyên cần'], ['xang', 'Trợ cấp xăng'], ['dt', 'Thưởng doanh thu'], ['kl', 'Thưởng kỷ luật'], ['an', 'Trợ cấp tiền ăn'], ['other', 'Khoản khác']].forEach(([k, n]) => add(n, '', P[k]));
+  const gross = L.reduce((s, x) => s + x.amt, 0), D = [];
+  [['BHXH 8%', bh * .08], ['BHYT 1,5%', bh * .015], ['BHTN 1%', bh * .01], ['Đoàn phí', P.union], ['Thuế TNCN', P.tax]].forEach(([n, a]) => { if (a > 0) D.push({ name: n, amt: Math.round(a) }); });
+  const ded = D.reduce((s, x) => s + x.amt, 0), now = new Date();
+  const last = (y === now.getFullYear() && m === now.getMonth()) ? now.getDate() - 1 : (new Date(y, m, 1) < now ? dim : 0);
+  let missing = 0; for (let d = 1; d <= last; d++) { const dt = new Date(y, m, d); if (dt.getDay() !== 0 && !(by[ymd(dt)] || []).length) missing++; }
+  return { L, D, gross, ded, net: gross - ded, std, cong, unpaid, missing };
+}
+function payLine(parent, name, sub, amt, tot) {
+  const d = el('div', 'ln' + (tot ? ' tot' : '')), l = el('span'); l.append(document.createTextNode(name));
+  if (sub) l.append(el('small', null, sub));
+  d.append(l, el('b', null, (amt < 0 ? '-' : '') + fmt(Math.abs(amt)))); parent.append(d);
+}
+function renderPay() {
+  const y = view.getFullYear(), m = view.getMonth(), P = S.pay, key = `${y}-${pad(m + 1)}`, f = $('#payForm');
+  $('#payTitle').textContent = `Tính lương tháng ${m + 1}/${y} (demo)`;
+  if (!f.children.length) PAYF.forEach(([k, n]) => {
+    const g = el('div', 'fg'), lb = el('label', null, n), i = el('input', 'fc'); i.id = 'pf-' + k; lb.htmlFor = i.id; i.dataset.k = k; i.inputMode = 'numeric'; i.autocomplete = 'off'; i.value = fmt(P[k]); g.append(lb, i); f.append(g);
+  });
+  $('#pUnpaid').value = P.unpaid[key] || 0;
+  const R = calcPay(y, m), box = $('#payLines'); box.replaceChildren();
+  $('#payNet').textContent = fmt(R.net) + ' đ';
+  $('#payNote').textContent = !P.base ? 'Hãy nhập lương cơ bản ở phần Thiết lập bên dưới.' : `Công chuẩn tháng này: ${R.std} công${R.unpaid ? `, nghỉ không lương ${R.unpaid} ngày` : ''}.` + (R.missing ? ` Còn ${R.missing} ngày Thứ 2–7 chưa ghi chấm công (đang tính đủ công).` : '');
+  box.append(el('h4', null, 'Thu nhập')); R.L.forEach(x => payLine(box, x.name, x.sub, x.amt));
+  payLine(box, 'Tổng thu nhập (chưa gồm thưởng phụ)', '', R.gross, true);
+  box.append(el('h4', null, 'Khấu trừ')); R.D.forEach(x => payLine(box, x.name, '', -x.amt));
+  payLine(box, 'Tổng khấu trừ', '', -R.ded, true);
+}
+
+/* ---------- Nhắc ghi chấm công ---------- */
+const remStat = t => { $('#rStatus').textContent = t; };
+const afterTime = () => { const n = new Date(); return `${pad(n.getHours())}:${pad(n.getMinutes())}` >= S.remind.time; };
+function todayMissing() { const n = new Date(); return n.getDay() !== 0 && !(byDate()[ymd(n)] || []).length; }
+function missingDays() {
+  const n = new Date(), by = byDate(), out = [];
+  for (let d = 1; d < n.getDate(); d++) { const dt = new Date(n.getFullYear(), n.getMonth(), d), k = ymd(dt); if (dt.getDay() !== 0 && !(by[k] || []).length) out.push(k); }
+  return out;
+}
+function checkRemind() {
+  const R = S.remind, box = $('#remind'); if (!box) return;
+  const past = missingDays().length, tm = todayMissing(), tod = tm && afterTime();
+  const show = R.on && R.snooze !== ymd(new Date()) && (past > 0 || tod);
+  box.classList.toggle('hidden', !show); if (!show) return;
+  $('#remindText').textContent = [tod ? 'Hôm nay bạn chưa ghi chấm công.' : '', past ? `Còn ${past} ngày trong tháng chưa ghi.` : ''].filter(Boolean).join(' ');
+  $('#remToday').classList.toggle('hidden', !tm); $('#remBulk').classList.toggle('hidden', !past);
+}
+function notifyDue() {
+  const R = S.remind, t = ymd(new Date());
+  if (!R.on || !('Notification' in window) || Notification.permission !== 'granted' || R.last === t || !todayMissing() || !afterTime()) return;
+  R.last = t; save();
+  if (navigator.serviceWorker) navigator.serviceWorker.ready.then(r => r.showNotification('WorkLog', { body: 'Hôm nay bạn chưa ghi chấm công.', icon: 'icon-192.png', tag: 'worklog-remind' })).catch(() => {});
+}
+async function notif() {
+  if (!('Notification' in window)) return remStat('Trình duyệt này không hỗ trợ thông báo.');
+  const r = await Notification.requestPermission();
+  remStat(r === 'granted' ? 'Đã bật thông báo. Chỉ hiện khi app đang mở hoặc chạy nền.' : 'Chưa được cấp quyền thông báo (cần mở app qua https://).');
+}
+function remIcs() {
+  const [h, mi] = S.remind.time.split(':').map(Number), now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (now.getHours() * 60 + now.getMinutes() >= h * 60 + mi) d.setDate(d.getDate() + 1);
+  if (d.getDay() === 0) d.setDate(d.getDate() + 1);
+  const em = Math.min(1439, h * 60 + mi + 10), ds = ymd(d).replace(/-/g, '');
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//WorkLog//VI//EN', 'BEGIN:VEVENT', 'UID:worklog-nhac@worklog', 'DTSTAMP:' + stamp,
+    `DTSTART:${ds}T${pad(h)}${pad(mi)}00`, `DTEND:${ds}T${pad(Math.floor(em / 60))}${pad(em % 60)}00`, 'RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA',
+    'SUMMARY:Ghi chấm công hôm nay', 'DESCRIPTION:Mở WorkLog và ghi chấm công trong ngày.', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Ghi chấm công hôm nay', 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'];
+  dl('worklog-nhac.ics', 'text/calendar;charset=utf-8', L.join('\r\n')); remStat('Đã xuất. Mở tệp .ics bằng Google Calendar để có nhắc lặp Thứ 2 đến Thứ 7.');
+}
+
+/* ---------- Điều khiển ---------- */
+function setTab(t) {
+  tab = t; ['calendar', 'leave', 'pay', 'records', 'gcal'].forEach(k => $('#tab-' + k).classList.toggle('hidden', k !== t));
+  document.querySelectorAll('.tb').forEach(b => b.classList.toggle('on', b.dataset.v === t));
+  if (t === 'leave') renderLeave(); if (t === 'pay') renderPay(); if (t === 'records') renderRecs(); if (t === 'gcal') { $('#gcid').value = S.gcid; $('#embed').value = S.embed; $('#rOn').checked = S.remind.on; $('#rTime').value = S.remind.time; renderEmbed(); }
+}
+const shift = n => { view = new Date(view.getFullYear(), view.getMonth() + n, 1); renderAll(); };
+const A = {
+  profile: openProfile, saveProfile, close: closeM, add: () => openEntry(ymd(new Date())), save: () => saveEntry(false), saveG: () => saveEntry(true),
+  tab: b => setTab(b.dataset.v), prev: () => shift(-1), next: () => shift(1), today: () => { view = new Date(); view.setDate(1); renderAll(); },
+  hideBanner: () => $('#banner').remove(), filter: b => { filter = b.dataset.v; renderCal(); }, goto: b => { view = new Date(view.getFullYear(), +b.dataset.v - 1, 1); renderAll(); },
+  bulk: () => openM('bulk'), bulkGo, note: b => { $('#fNote').value = b.dataset.v; }, hrs: b => { $('#fHours').value = b.dataset.v; endFromHours(); },
+  q17: b => { const T = TYPES.regular; S.records.push({ id: uid(), type: 'regular', date: b.dataset.v, start: T.s, end: T.e, hours: T.h, mult: T.m, note: 'Làm hành chính về 17h', signed: false }); save(); renderAll(); },
+  edit: b => { closeM(); openEntry(null, b.dataset.v); },
+  del: b => { if (!confirm('Xóa bản ghi này?')) return; S.records = S.records.filter(r => r.id !== b.dataset.v); save(); closeM(); renderAll(); toast('Đã xóa'); },
+  sign: b => { const r = S.records.find(x => x.id === b.dataset.v); if (r) { r.signed = !r.signed; save(); renderLeave(); } },
+  csv, txt: exportTxt, tpl: templateTxt, json: () => dl('worklog-backup.json', 'application/json', JSON.stringify({ app: 'worklog', version: 2, profile: S.profile, records: S.records, pay: S.pay }, null, 1)),
+  import: () => $('#file').click(), ics: b => ics(b.dataset.v), gconnect, gpush, gpull, notif, remIcs,
+  remToday: () => { const T = TYPES.regular; S.records.push({ id: uid(), type: 'regular', date: ymd(new Date()), start: T.s, end: T.e, hours: T.h, mult: T.m, note: 'Làm hành chính về 17h', signed: false }); save(); renderAll(); toast('Đã ghi hôm nay (về 17h)'); },
+  remBulk: () => { view = new Date(); view.setDate(1); renderAll(); openM('bulk'); },
+  remSnooze: () => { S.remind.snooze = ymd(new Date()); save(); checkRemind(); }
+};
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('mb')) return closeM();
+  const b = e.target.closest('[data-act]');
+  if (b && A[b.dataset.act]) return A[b.dataset.act](b);
+  const c = e.target.closest('.cell'); if (c) openEntry(c.dataset.date);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.profile) closeM(); });
+$('#fType').addEventListener('change', e => applyType(e.target.value));
+$('#fHours').addEventListener('input', endFromHours);
+$('#fStart').addEventListener('input', endFromHours);
+$('#fEnd').addEventListener('change', hoursFromEnd);
+$('#search').addEventListener('input', renderRecs);
+$('#file').addEventListener('change', e => { importFile(e.target.files[0]); e.target.value = ''; });
+$('#gcid').addEventListener('change', e => { S.gcid = str(e.target.value, 200); save(); });
+$('#embed').addEventListener('change', e => { S.embed = str(e.target.value, 600); save(); renderEmbed(); });
+
+$('#payForm').addEventListener('change', e => { const k = e.target.dataset.k; if (!k) return; S.pay[k] = parseMoney(e.target.value); e.target.value = fmt(S.pay[k]); save(); renderPay(); });
+$('#pUnpaid').addEventListener('change', e => {
+  const key = `${view.getFullYear()}-${pad(view.getMonth() + 1)}`, v = Math.min(31, Math.max(0, parseHours(e.target.value) || 0));
+  if (v) S.pay.unpaid[key] = v; else delete S.pay.unpaid[key]; save(); renderPay();
+});
+$('#rOn').addEventListener('change', e => { S.remind.on = e.target.checked; save(); checkRemind(); });
+$('#rTime').addEventListener('change', e => { if (isTime(e.target.value)) { S.remind.time = e.target.value; save(); checkRemind(); } });
+load(); renderAll(); if (!S.profile) openProfile(); notifyDue();
+setInterval(() => { checkRemind(); notifyDue(); }, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkRemind(); notifyDue(); } });
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
