@@ -22,7 +22,7 @@ button{font-family:inherit}
 .wrap{max-width:1100px;margin:0 auto;padding:12px}
 .banner{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF;border-radius:12px;padding:9px 12px;font-size:12px;margin-bottom:12px;display:flex;justify-content:space-between;gap:8px;align-items:center}
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-@media(min-width:768px){.kpis{grid-template-columns:repeat(5,1fr)}}
+@media(min-width:768px){.kpis{grid-template-columns:repeat(6,1fr)}}@media(max-width:767px){.kpi:last-child{grid-column:span 2}}
 .kpi{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:12px}
 .kpi:first-child{grid-column:span 2}@media(min-width:768px){.kpi:first-child{grid-column:auto}}
 .kb{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;margin-bottom:6px}
@@ -50,7 +50,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .dn{font-size:12px;font-weight:800}.dn.s{color:var(--lv)}
 .q17{font-size:10px;font-weight:700;color:var(--pr);background:var(--ps);border:0;border-radius:6px;padding:2px 4px;cursor:pointer}
 .ev{font-size:10px;font-weight:700;padding:2px 3px;border-radius:5px;margin-bottom:2px;line-height:1.2;overflow-wrap:anywhere}
-.ev-regular{background:var(--ps);color:var(--pr)}.ev-ot{background:var(--otb);color:var(--ot)}.ev-leave{background:var(--lvb);color:var(--lv)}.ev-sunday{background:var(--snb);color:var(--sn)}.ev-welfare,.ev-welfareoff{background:var(--wfb);color:var(--wf)}
+.ev-regular{background:var(--ps);color:var(--pr)}.ev-ot{background:var(--otb);color:var(--ot)}.ev-leave{background:var(--lvb);color:var(--lv)}.ev-sunday{background:var(--snb);color:var(--sn)}.ev-welfare,.ev-welfareoff{background:var(--wfb);color:var(--wf)}.ev-holiday,.ev-holidayoff{background:#FCE7F3;color:#BE185D}.cell.hol{background:#FFF1F7}.hn{font-size:9px;color:#BE185D;font-weight:700;line-height:1.15;margin-bottom:2px;overflow-wrap:anywhere}
 .tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12.5px}
 th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left}th{background:var(--sv);color:var(--mu);white-space:nowrap}
 .sb{border:1px solid var(--bd);background:var(--sv);border-radius:14px;padding:13px;margin-bottom:12px}.sb h4{margin:0 0 6px;font-size:14.5px}.sb p{font-size:12.5px;color:var(--mu);margin:0 0 8px}
@@ -103,6 +103,7 @@ iframe{width:100%;height:500px;border:1px solid var(--bd);border-radius:12px}
       <button class="ib" data-act="next" aria-label="Tháng sau">&#9654;</button>
       <button class="ib" data-act="today">Hôm nay</button>
       <button class="bo" data-act="bulk">Điền ngày trống (về 17h)</button>
+      <button class="bo" data-act="hols">Ngày lễ</button>
     </div>
     <div class="row" id="qm"></div>
     <div class="row" id="filters"></div>
@@ -208,7 +209,7 @@ iframe{width:100%;height:500px;border:1px solid var(--bd);border-radius:12px}
   <div class="r2">
     <div class="fg"><label for="fDate">Ngày</label><input class="fc" type="date" id="fDate" /></div>
     <div class="fg"><label for="fType">Phân loại</label><select class="fc" id="fType">
-      <option value="regular">Hành chính 17h (không OT)</option><option value="ot">Tăng ca OT</option><option value="leave">Nghỉ phép</option><option value="sunday">Đi làm Chủ nhật</option><option value="welfare">Đi làm phúc lợi (x2 công)</option><option value="welfareoff">Nghỉ phúc lợi (có lương)</option></select></div>
+      <option value="regular">Hành chính 17h (không OT)</option><option value="ot">Tăng ca OT</option><option value="leave">Nghỉ phép</option><option value="sunday">Đi làm Chủ nhật</option><option value="welfare">Đi làm phúc lợi (x2 công)</option><option value="welfareoff">Nghỉ phúc lợi (có lương)</option><option value="holiday">Đi làm ngày lễ (300%)</option><option value="holidayoff">Nghỉ lễ (hưởng nguyên lương)</option></select></div>
   </div>
   <div class="r2">
     <div class="fg"><label for="fStart">Giờ bắt đầu</label><input class="fc" type="time" id="fStart" /></div>
@@ -220,13 +221,23 @@ iframe{width:100%;height:500px;border:1px solid var(--bd);border-radius:12px}
     <div class="fg"><label for="fMult">Hệ số lương</label><select class="fc" id="fMult"><option value="100">100%</option><option value="150">150% (tăng ca)</option><option value="200">200% (Chủ nhật)</option><option value="300">300% (lễ / phúc lợi)</option></select></div>
   </div>
   <div class="fg"><label for="fNote">Ghi chú</label><input class="fc" id="fNote" maxlength="200" />
-    <div><span class="nc" data-act="note" data-v="Làm hành chính về 17h">Về 17h</span><span class="nc" data-act="note" data-v="Tăng ca xưởng">Tăng ca xưởng</span><span class="nc" data-act="note" data-v="Đi làm full">Đi làm full</span><span class="nc" data-act="note" data-v="Nghỉ phép năm">Nghỉ phép năm</span></div></div>
+    <div><span class="nc" data-act="note" data-v="Làm hành chính về 17h">Về 17h</span><span class="nc" data-act="note" data-v="Tăng ca xưởng">Tăng ca xưởng</span><span class="nc" data-act="note" data-v="Đi làm full">Đi làm full</span><span class="nc" data-act="note" data-v="Nghỉ phép năm">Nghỉ phép năm</span></div>
+      <div id="hNames" class="hidden"><span class="nc" data-act="note" data-v="Tết Dương lịch">Tết Dương lịch</span><span class="nc" data-act="note" data-v="Tết Âm lịch">Tết Âm lịch</span><span class="nc" data-act="note" data-v="Giỗ Tổ Hùng Vương">Giỗ Tổ</span><span class="nc" data-act="note" data-v="30/4">30/4</span><span class="nc" data-act="note" data-v="1/5">1/5</span><span class="nc" data-act="note" data-v="Quốc khánh">Quốc khánh</span><span class="nc" data-act="note" data-v="Nghỉ bù">Nghỉ bù</span></div></div>
   <div class="acts"><button class="bp" data-act="save">Lưu bản ghi</button><button class="bo" data-act="saveG">Lưu &amp; mở Google Calendar</button><button class="ib" data-act="close">Đóng</button></div>
+</div></div>
+
+<div class="mb" id="m-hol"><div class="md" role="dialog" aria-modal="true">
+  <h3 id="holTitle">Ngày lễ</h3>
+  <p class="ks" style="margin-top:0">Ngày lễ hiện màu hồng trên lịch, ô có nút "Lễ" để ghi nhanh nghỉ lễ hưởng nguyên lương. Tết Âm lịch, Giỗ Tổ và ngày nghỉ bù đổi theo từng năm, hãy thêm theo thông báo của công ty.</p>
+  <div id="holList"></div>
+  <div class="r2"><div class="fg"><label for="holDate">Ngày</label><input class="fc" type="date" id="holDate" /></div><div class="fg"><label for="holName">Tên ngày lễ</label><input class="fc" id="holName" maxlength="60" placeholder="VD: Giỗ Tổ" /></div></div>
+  <div><span class="nc" data-act="holName" data-v="Tết Dương lịch">Tết Dương lịch</span><span class="nc" data-act="holName" data-v="Tết Âm lịch">Tết Âm lịch</span><span class="nc" data-act="holName" data-v="Giỗ Tổ Hùng Vương">Giỗ Tổ</span><span class="nc" data-act="holName" data-v="Quốc khánh">Quốc khánh</span><span class="nc" data-act="holName" data-v="Nghỉ bù">Nghỉ bù</span></div>
+  <div class="acts"><button class="bp" data-act="holAdd">Thêm ngày lễ</button><button class="bo" data-act="holFixed">Thêm lễ cố định (1/1, 30/4, 1/5, 2/9)</button><button class="ib" data-act="close">Đóng</button></div>
 </div></div>
 
 <div class="mb" id="m-bulk"><div class="md" role="dialog" aria-modal="true">
   <h3>Điền ngày trống (về 17h)</h3>
-  <p style="font-size:12.5px;color:var(--mu);margin-top:0">Điền các ngày Thứ 2 đến Thứ 7 chưa có dữ liệu trong tháng đang xem. Bỏ qua Chủ nhật.</p>
+  <p style="font-size:12.5px;color:var(--mu);margin-top:0">Điền các ngày Thứ 2 đến Thứ 7 chưa có dữ liệu trong tháng đang xem. Bỏ qua Chủ nhật. Ngày có trong danh sách Ngày lễ sẽ điền là nghỉ lễ hưởng nguyên lương.</p>
   <div class="fg"><label for="bScope">Phạm vi</label><select class="fc" id="bScope"><option value="today">Từ đầu tháng đến hôm nay</option><option value="full">Cả tháng</option></select></div>
   <div class="acts"><button class="bp" data-act="bulkGo">Điền ngay</button><button class="ib" data-act="close">Đóng</button></div>
 </div></div>
@@ -249,12 +260,14 @@ const TYPES = {
   leave: { n: 'Nghỉ phép', s: '08:00', e: '17:00', h: 8, m: 100 },
   sunday: { n: 'Chủ nhật', s: '08:00', e: '08:00', h: 0, m: 200 },
   welfare: { n: 'Phúc lợi', s: '08:00', e: '17:00', h: 0, m: 150 },
-  welfareoff: { n: 'Nghỉ phúc lợi', s: '08:00', e: '17:00', h: 0, m: 100 }
+  welfareoff: { n: 'Nghỉ phúc lợi', s: '08:00', e: '17:00', h: 0, m: 100 },
+  holiday: { n: 'Làm ngày lễ', s: '08:00', e: '08:00', h: 0, m: 300 },
+  holidayoff: { n: 'Nghỉ lễ', s: '08:00', e: '17:00', h: 0, m: 100 }
 };
-const NOHRS = ['regular', 'welfareoff']; // loại không nhập số giờ
+const NOHRS = ['regular', 'welfareoff', 'holidayoff']; // loại không nhập số giờ
 const MULTS = [100, 150, 200, 300];
 const KEY = 'worklog.v2';
-let S = { profile: null, records: [], gcid: '', embed: '', remind: { on: true, time: '17:30', snooze: '', last: '' }, pay: { base: 0, senior: 0, cc: 0, xang: 0, dt: 0, kl: 0, an: 0, other: 0, union: 35000, tax: 0, unpaid: {} } };
+let S = { profile: null, records: [], gcid: '', embed: '', remind: { on: true, time: '17:30', snooze: '', last: '' }, pay: { base: 0, senior: 0, cc: 0, xang: 0, dt: 0, kl: 0, an: 0, other: 0, union: 35000, tax: 0, unpaid: {} }, holidays: [] };
 const curYM = () => ymd(new Date()).slice(0, 7);
 let view = new Date(); view.setDate(1);
 let filter = 'all', gToken = null, tab = 'calendar';
@@ -280,13 +293,20 @@ function cleanRec(r) {
 function load() {
   try {
     const r = JSON.parse(localStorage.getItem(KEY) || 'null');
-    if (r) { S.profile = cleanProfile(r.profile); S.records = (r.records || []).map(cleanRec).filter(Boolean); S.gcid = str(r.gcid, 200); S.embed = str(r.embed, 600); const q = r.remind || {}; S.remind = { on: q.on !== false, time: isTime(q.time) ? q.time : '17:30', snooze: isDate(q.snooze) ? q.snooze : '', last: isDate(q.last) ? q.last : '' }; S.pay = cleanPay(r.pay); }
+    if (r) { S.profile = cleanProfile(r.profile); S.records = (r.records || []).map(cleanRec).filter(Boolean); S.gcid = str(r.gcid, 200); S.embed = str(r.embed, 600); const q = r.remind || {}; S.remind = { on: q.on !== false, time: isTime(q.time) ? q.time : '17:30', snooze: isDate(q.snooze) ? q.snooze : '', last: isDate(q.last) ? q.last : '' }; S.pay = cleanPay(r.pay); S.holidays = cleanHols(r.holidays); }
   } catch (e) { /* dữ liệu hỏng: bắt đầu lại */ }
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Không lưu được dữ liệu (bộ nhớ đầy?)'); } }
 let tt; function toast(m) { const t = $('#toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(tt); tt = setTimeout(() => t.style.display = 'none', 2600); }
 const byDate = () => { const o = {}; S.records.forEach(r => (o[r.date] = o[r.date] || []).push(r)); return o; };
 const title = r => `${TYPES[r.type].n}${r.hours ? ' ' + r.hours + 'h' : ''}${S.profile && S.profile.company ? ' - ' + S.profile.company : ''}`;
+
+function cleanHols(a) {
+  const seen = new Set(), out = [];
+  (Array.isArray(a) ? a : []).slice(0, 300).forEach(x => { if (x && isDate(x.date) && !seen.has(x.date)) { seen.add(x.date); out.push({ date: x.date, name: str(x.name, 60) }); } });
+  return out.sort((p, q) => p.date.localeCompare(q.date));
+}
+const holOf = k => S.holidays.find(x => x.date === k);
 
 /* Phép năm tích lũy: số nhập lúc thiết lập + 1 ngày cho mỗi tháng trôi qua */
 function entitle(y) {
@@ -323,7 +343,8 @@ function renderKpi() {
     kpi('Tăng ca', sum('ot') + 'h', 'Tháng đang xem', '#B45309', '#FEF3C7'),
     kpi('Chủ nhật', sum('sunday') + 'h', 'Tháng đang xem', '#7C3AED', '#EDE9FE'),
     kpi('Phúc lợi', (mr.filter(r => r.type === 'welfare' || r.type === 'welfareoff').length) + ' ngày', mr.some(r => r.type === 'welfare') ? 'Đi làm x2 công' + (sum('welfare') ? ` + ${sum('welfare')}h tăng ca` : '') : mr.some(r => r.type === 'welfareoff') ? 'Nghỉ có lương' : 'Chưa ghi', '#2563EB', '#DBEAFE'),
-    kpi('Về 17h', mr.filter(r => r.type === 'regular').length + ' ngày', 'Không tăng ca', '#0F766E', '#CCFBF1'));
+    kpi('Về 17h', mr.filter(r => r.type === 'regular').length + ' ngày', 'Không tăng ca', '#0F766E', '#CCFBF1'),
+    kpi('Ngày lễ', sum('holiday') + 'h', `Nghỉ lễ: ${mr.filter(r => r.type === 'holidayoff').length} ngày`, '#BE185D', '#FCE7F3'));
 }
 const fh = n => String(n).replace('.', ',');
 function tagText(r) { // nhãn ngắn để vừa ô lịch trên điện thoại, luôn thấy số giờ
@@ -334,6 +355,8 @@ function tagText(r) { // nhãn ngắn để vừa ô lịch trên điện thoạ
     case 'sunday': return 'CN ' + h;
     case 'leave': return r.hours === 8 ? 'Phép' : 'Phép ' + h;
     case 'welfare': return h ? 'PL +' + h : 'PL x2';
+    case 'holiday': return 'Lễ ' + h;
+    case 'holidayoff': return 'Nghỉ lễ';
     default: return 'Nghỉ PL';
   }
 }
@@ -341,7 +364,7 @@ function renderCal() {
   const y = view.getFullYear(), m = view.getMonth();
   $('#monthTitle').textContent = `Tháng ${m + 1}/${y}`;
   const f = $('#filters'); f.replaceChildren();
-  [['all', 'Tất cả'], ['ot', 'Tăng ca OT'], ['leave', 'Nghỉ phép'], ['sunday', 'Chủ nhật'], ['welfare', 'Phúc lợi'], ['regular', 'Về 17h']].forEach(([k, t]) => {
+  [['all', 'Tất cả'], ['ot', 'Tăng ca OT'], ['leave', 'Nghỉ phép'], ['sunday', 'Chủ nhật'], ['welfare', 'Phúc lợi'], ['holiday', 'Ngày lễ'], ['regular', 'Về 17h']].forEach(([k, t]) => {
     const b = el('button', 'pill' + (filter === k ? ' on' : ''), t); b.dataset.act = 'filter'; b.dataset.v = k; f.append(b);
   });
   const qm = $('#qm'); qm.replaceChildren();
@@ -353,12 +376,12 @@ function renderCal() {
   const today = ymd(new Date()), by = byDate();
   for (let i = 0; i < total; i++) {
     const d = new Date(y, m, 1 - off + i), k = ymd(d), sun = d.getDay() === 0, cur = d.getMonth() === m;
-    const c = el('div', 'cell' + (cur ? '' : ' o') + (k === today ? ' t' : '') + (sun ? ' sn' : '')); c.dataset.date = k;
+    const c = el('div', 'cell' + (cur ? '' : ' o') + (k === today ? ' t' : '') + (sun ? ' sn' : '') + (holOf(k) ? ' hol' : '')); c.dataset.date = k;
     const top = el('div', 'ct'); top.append(el('span', 'dn' + (sun ? ' s' : ''), d.getDate()));
     const rs = by[k] || [];
-    if (cur && !sun && !rs.length) { const b = el('button', 'q17', '17h'); b.dataset.act = 'q17'; b.dataset.v = k; top.append(b); }
-    c.append(top);
-    rs.filter(r => filter === 'all' || r.type === filter || (filter === 'welfare' && r.type === 'welfareoff')).slice(0, 3).forEach(r => c.append(el('div', 'ev ev-' + r.type, tagText(r))));
+    if (cur && !sun && !rs.length) { const hl = holOf(k), b = el('button', 'q17', hl ? 'Lễ' : '17h'); b.dataset.act = hl ? 'qhol' : 'q17'; b.dataset.v = k; top.append(b); }
+    c.append(top); if (cur && holOf(k)) c.append(el('div', 'hn', holOf(k).name));
+    rs.filter(r => filter === 'all' || r.type === filter || (filter === 'welfare' && r.type === 'welfareoff') || (filter === 'holiday' && r.type === 'holidayoff')).slice(0, 3).forEach(r => c.append(el('div', 'ev ev-' + r.type, tagText(r))));
     g.append(c);
   }
 }
@@ -392,15 +415,16 @@ function renderRecs() {
 /* ---------- Hộp thoại ---------- */
 const openM = id => { $('#m-' + id).classList.add('open'); };
 const closeM = () => document.querySelectorAll('.mb.open').forEach(m => m.classList.remove('open'));
-const AUTO = ['ot', 'sunday']; // loại có giờ kết thúc = giờ bắt đầu + số giờ
+const AUTO = ['ot', 'sunday', 'holiday']; // loại có giờ kết thúc = giờ bắt đầu + số giờ
 const parseHours = v => { const s = String(v).trim().replace(',', '.'); return s === '' ? 0 : Number(s); };
 const toMin = s => { const [a, b] = s.split(':').map(Number); return a * 60 + b; };
 const fromMin = n => `${pad(Math.floor(n / 60))}:${pad(n % 60)}`;
 function syncHoursUI() {
   const t = $('#fType').value, reg = NOHRS.includes(t), f = $('#fHours');
+  $('#hNames').classList.toggle('hidden', !['holiday', 'holidayoff'].includes(t));
   f.disabled = reg; f.classList.toggle('hl', !reg); if (reg) f.value = 0;
   $('#hChips').classList.toggle('hidden', reg || t === 'leave');
-  $('#hLabel').textContent = { regular: 'Số giờ tăng ca thêm (hành chính = 0)', ot: 'Số giờ tăng ca thêm', sunday: 'Số giờ tăng ca thêm (Chủ nhật)', welfare: 'Số giờ tăng ca thêm (phúc lợi đã tính x2 công, 0 = không tăng ca)', welfareoff: 'Số giờ (nghỉ phúc lợi có lương, không cần nhập)', leave: 'Số giờ nghỉ (8 giờ = 1 ngày)' }[t];
+  $('#hLabel').textContent = { regular: 'Số giờ tăng ca thêm (hành chính = 0)', ot: 'Số giờ tăng ca thêm', sunday: 'Số giờ tăng ca thêm (Chủ nhật)', welfare: 'Số giờ tăng ca thêm (phúc lợi đã tính x2 công, 0 = không tăng ca)', welfareoff: 'Số giờ (nghỉ phúc lợi có lương, không cần nhập)', holiday: 'Số giờ làm ngày lễ (tính 300%)', holidayoff: 'Số giờ (nghỉ lễ hưởng nguyên lương = 0)', leave: 'Số giờ nghỉ (8 giờ = 1 ngày)' }[t];
 }
 const LUNCH = [720, 780]; // nghỉ trưa 12:00-13:00, không tính vào số giờ
 const worked = (a, b) => Math.max(0, b - a) - Math.max(0, Math.min(b, LUNCH[1]) - Math.max(a, LUNCH[0]));
@@ -427,7 +451,7 @@ function openEntry(date, id) {
   $('#editId').value = r ? r.id : ''; $('#fDate').value = d;
   $('#eTitle').textContent = r ? 'Sửa bản ghi' : 'Ghi nhận chấm công';
   if (r) { $('#fType').value = r.type; $('#fStart').value = r.start; $('#fEnd').value = r.end; $('#fHours').value = r.hours; $('#fMult').value = r.mult; $('#fNote').value = r.note; syncHoursUI(); }
-  else { const t = pd(d).getDay() === 0 ? 'sunday' : 'regular'; $('#fType').value = t; applyType(t); $('#fNote').value = ''; }
+  else { const hl = holOf(d), t = hl ? 'holidayoff' : (pd(d).getDay() === 0 ? 'sunday' : 'regular'); $('#fType').value = t; applyType(t); $('#fNote').value = hl ? hl.name : ''; }
   const ex = $('#exist'); ex.replaceChildren();
   (byDate()[d] || []).filter(x => !r || x.id !== r.id).forEach(x => {
     const row = el('div', 'ex'); row.append(el('span', null, `${TYPES[x.type].n} ${x.start}–${x.end}${x.hours ? ` (${x.hours}h)` : ''}`));
@@ -438,7 +462,7 @@ function openEntry(date, id) {
 function saveEntry(openG) {
   const ty = $('#fType').value, hv = NOHRS.includes(ty) ? 0 : parseHours($('#fHours').value);
   if (!isFinite(hv) || hv < 0 || hv > 24) return toast('Số giờ không hợp lệ');
-  if (['ot', 'sunday', 'leave'].includes(ty) && hv <= 0) return toast(ty === 'leave' ? 'Hãy nhập số giờ nghỉ' : 'Hãy nhập số giờ tăng ca');
+  if (['ot', 'sunday', 'holiday', 'leave'].includes(ty) && hv <= 0) return toast(ty === 'leave' ? 'Hãy nhập số giờ nghỉ' : ty === 'holiday' ? 'Hãy nhập số giờ làm ngày lễ' : 'Hãy nhập số giờ tăng ca');
   const rec = cleanRec({ id: $('#editId').value, type: $('#fType').value, date: $('#fDate').value, start: $('#fStart').value, end: $('#fEnd').value, hours: hv, mult: $('#fMult').value, note: $('#fNote').value });
   if (!rec) return toast('Ngày hoặc phân loại không hợp lệ');
   if (!isTime($('#fStart').value) || !isTime($('#fEnd').value)) return toast('Hãy nhập giờ bắt đầu và kết thúc');
@@ -475,7 +499,7 @@ function bulkGo() {
   for (let d = 1; d <= end; d++) {
     const dt = new Date(y, m, d), k = ymd(dt);
     if (dt.getDay() === 0 || (by[k] && by[k].length)) continue;
-    S.records.push({ id: uid(), type: 'regular', date: k, start: T.s, end: T.e, hours: T.h, mult: T.m, note: 'Làm hành chính về 17h', signed: false }); n++;
+    const hl = holOf(k), HT = hl ? TYPES.holidayoff : T; S.records.push({ id: uid(), type: hl ? 'holidayoff' : 'regular', date: k, start: HT.s, end: HT.e, hours: 0, mult: HT.m, note: hl ? hl.name : 'Làm hành chính về 17h', signed: false }); n++;
   }
   save(); closeM(); renderAll(); toast(n ? `Đã điền ${n} ngày` : 'Không có ngày trống để điền');
 }
@@ -516,6 +540,7 @@ function importFile(f) {
       rs.forEach(r => { const i = S.records.findIndex(x => x.id === r.id); if (i >= 0) S.records[i] = r; else S.records.push(r); });
       if (d && d.profile && !S.profile) S.profile = cleanProfile(d.profile);
       if (d && d.pay && !S.pay.base) S.pay = cleanPay(d.pay);
+      if (d && Array.isArray(d.holidays)) S.holidays = cleanHols([...S.holidays, ...d.holidays]);
       save(); closeM(); renderAll(); toast(`Đã nạp ${rs.length} bản ghi`);
     } catch (e) { toast('Tệp JSON không hợp lệ'); }
   };
@@ -523,12 +548,14 @@ function importFile(f) {
 }
 
 /* ---------- Tệp văn bản: xuất / nạp / mẫu ---------- */
-const TXT_NAME = { regular: 'về 17h', ot: 'tăng ca', leave: 'nghỉ phép', sunday: 'chủ nhật', welfare: 'phúc lợi', welfareoff: 'nghỉ phúc lợi' };
+const TXT_NAME = { regular: 'về 17h', ot: 'tăng ca', leave: 'nghỉ phép', sunday: 'chủ nhật', welfare: 'phúc lợi', welfareoff: 'nghỉ phúc lợi', holiday: 'làm ngày lễ', holidayoff: 'nghỉ lễ' };
 const noDia = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
 function txtType(pre) {
   const s = ' ' + noDia(pre).replace(/[^a-z0-9]+/g, ' ') + ' ';
   if (/ nghi (phuc loi|pl) /.test(s)) return 'welfareoff';
   if (/ (phuc loi|pl) /.test(s)) return 'welfare';
+  if (/ nghi (ngay )?le /.test(s)) return 'holidayoff';
+  if (/ le /.test(s)) return 'holiday';
   if (/ (nghi )?phep /.test(s)) return 'leave';
   if (/ (chu nhat|cn) /.test(s)) return 'sunday';
   if (/ (tang ca|tc|ot) /.test(s)) return 'ot';
@@ -547,7 +574,7 @@ function parseTxt(text) {
     else return bad('không thấy ngày dd/mm/yyyy');
     const date = `${y}-${pad(m)}-${pad(d)}`; if (!isDate(date)) return bad('ngày không hợp lệ');
     const rest = line.slice(mm.index + mm[0].length), type = txtType(line.slice(0, mm.index)) || txtType(rest);
-    if (!type) return bad('không nhận ra loại (về 17h, tăng ca, chủ nhật, phúc lợi, nghỉ phúc lợi, nghỉ phép)');
+    if (!type) return bad('không nhận ra loại (về 17h, tăng ca, chủ nhật, phúc lợi, nghỉ phúc lợi, làm ngày lễ, nghỉ lễ, nghỉ phép)');
     const hm = rest.match(/(\d+(?:[.,]\d+)?)/); let hours = hm ? Number(hm[1].replace(',', '.')) : NaN;
     if (NOHRS.includes(type)) hours = 0;
     else if (type === 'welfare') hours = isFinite(hours) ? hours : 0;
@@ -555,7 +582,7 @@ function parseTxt(text) {
     else if (!isFinite(hours) || hours <= 0) return bad(`thiếu số giờ (VD: ${TXT_NAME[type]} ${vn(date)} - 2)`);
     if (hours < 0 || hours > 24) return bad('số giờ không hợp lệ');
     const T = TYPES[type]; let end = T.e;
-    if (type === 'ot' || type === 'sunday') end = fromMin(endAfter(toMin(T.s), hours));
+    if (type === 'ot' || type === 'sunday' || type === 'holiday') end = fromMin(endAfter(toMin(T.s), hours));
     const rec = cleanRec({ type, date, start: T.s, end, hours, mult: T.m, note });
     if (rec) items.push(rec);
   });
@@ -577,16 +604,17 @@ function templateTxt() {
   const L = ['# MẪU NHẬP DỮ LIỆU WORKLOG',
     '# Mỗi dòng một bản ghi. Dòng bắt đầu bằng # là ghi chú, app bỏ qua.',
     '# Cú pháp:  loại  dd/mm/yyyy  [- số giờ]  [| ghi chú]',
-    '# Các loại: về 17h | tăng ca | chủ nhật | phúc lợi | nghỉ phúc lợi | nghỉ phép',
+    '# Các loại: về 17h | tăng ca | chủ nhật | phúc lợi | nghỉ phúc lợi | làm ngày lễ | nghỉ lễ | nghỉ phép',
     '# - tăng ca, chủ nhật: bắt buộc có số giờ tăng ca (1, 1,5, 2, 3, 4...)',
+    '# - làm ngày lễ: bắt buộc có tổng số giờ làm hôm đó (VD 8), tính 300%',
     '# - phúc lợi: số giờ tăng ca là tùy chọn, không ghi = không tăng ca',
     '# - nghỉ phép: số giờ nghỉ, không ghi = cả ngày (8 giờ), nửa ngày = 4',
-    '# - về 17h, nghỉ phúc lợi: không cần số giờ',
+    '# - về 17h, nghỉ phúc lợi, nghỉ lễ (hưởng nguyên lương): không cần số giờ',
     '# Cũng nhận kiểu viết: tăng ca ngày dd/mm/yyyy-2',
     '# Ghi trùng ngày và loại với dữ liệu đã có sẽ cập nhật bản cũ.',
     '# Bỏ dấu # ở đầu các dòng ví dụ bên dưới để dùng:', '',
     `# về 17h ${d(2)}`, `# tăng ca ${d(3)} - 2`, `# tăng ca ngày ${d(4)}-1,5`, `# nghỉ phép năm ngày ${d(5)}`,
-    `# nghỉ phép ${d(6)} - 4 | nghỉ nửa ngày`, `# phúc lợi ${d(7)} - 2`, `# chủ nhật ${d(8)} - 4`, `# nghỉ phúc lợi ${d(14)}`, ''];
+    `# nghỉ phép ${d(6)} - 4 | nghỉ nửa ngày`, `# phúc lợi ${d(7)} - 2`, `# chủ nhật ${d(8)} - 4`, `# nghỉ phúc lợi ${d(14)}`, `# làm ngày lễ ${d(9)} - 8`, `# nghỉ lễ ${d(10)}`, ''];
   dl('worklog-mau.txt', 'text/plain;charset=utf-8', '\ufeff' + L.join('\r\n'));
 }
 function importTxt(text) {
@@ -697,7 +725,7 @@ function calcPay(y, m) {
   add('Lương ngày công', `${cong} công × ${fmt(day)}`, day * cong);
   const wk = rs.filter(r => r.type === 'welfare').length;
   add('Phúc lợi đi làm (thêm 1 công)', `${wk} ngày × ${fmt(day)}`, day * wk);
-  [['ot', 'Tăng ca ngày thường'], ['sunday', 'Làm Chủ nhật'], ['welfare', 'Tăng ca ngày phúc lợi']].forEach(([t, n]) => {
+  [['ot', 'Tăng ca ngày thường'], ['sunday', 'Làm Chủ nhật'], ['welfare', 'Tăng ca ngày phúc lợi'], ['holiday', 'Làm ngày lễ']].forEach(([t, n]) => {
     const a = rs.filter(r => r.type === t), hrs = a.reduce((s, r) => s + r.hours, 0), ms = [...new Set(a.map(r => r.mult))];
     add(n, `${hrs} giờ × ${fmt(otBase)} đ/giờ${ms.length === 1 ? ' × ' + ms[0] + '%' : ''}`, a.reduce((s, r) => s + r.hours * otBase * r.mult / 100, 0));
   });
@@ -706,7 +734,7 @@ function calcPay(y, m) {
   [['BHXH 8%', bh * .08], ['BHYT 1,5%', bh * .015], ['BHTN 1%', bh * .01], ['Đoàn phí', P.union], ['Thuế TNCN', P.tax]].forEach(([n, a]) => { if (a > 0) D.push({ name: n, amt: Math.round(a) }); });
   const ded = D.reduce((s, x) => s + x.amt, 0), now = new Date();
   const last = (y === now.getFullYear() && m === now.getMonth()) ? now.getDate() - 1 : (new Date(y, m, 1) < now ? dim : 0);
-  let missing = 0; for (let d = 1; d <= last; d++) { const dt = new Date(y, m, d); if (dt.getDay() !== 0 && !(by[ymd(dt)] || []).length) missing++; }
+  let missing = 0; for (let d = 1; d <= last; d++) { const dt = new Date(y, m, d); if (dt.getDay() !== 0 && !holOf(ymd(dt)) && !(by[ymd(dt)] || []).length) missing++; }
   return { L, D, gross, ded, net: gross - ded, std, cong, unpaid, missing };
 }
 function payLine(parent, name, sub, amt, tot) {
@@ -724,11 +752,23 @@ function renderPay() {
   const R = calcPay(y, m), box = $('#payLines'); box.replaceChildren();
   $('#payNet').textContent = fmt(R.net) + ' đ';
   $('#payNote').textContent = !P.base ? 'Hãy nhập lương cơ bản ở phần Thiết lập bên dưới.' : `Công chuẩn tháng này: ${R.std} công${R.unpaid ? `, nghỉ không lương ${R.unpaid} ngày` : ''}.` + (R.missing ? ` Còn ${R.missing} ngày Thứ 2–7 chưa ghi chấm công (đang tính đủ công).` : '');
+  const ho = S.records.filter(r => r.type === 'holidayoff' && r.date.startsWith(key + '-')).length;
+  if (ho && P.base) $('#payNote').textContent += ` Nghỉ lễ hưởng nguyên lương ${ho} ngày (đã nằm trong công chuẩn).`;
   box.append(el('h4', null, 'Thu nhập')); R.L.forEach(x => payLine(box, x.name, x.sub, x.amt));
   payLine(box, 'Tổng thu nhập (chưa gồm thưởng phụ)', '', R.gross, true);
   box.append(el('h4', null, 'Khấu trừ')); R.D.forEach(x => payLine(box, x.name, '', -x.amt));
   payLine(box, 'Tổng khấu trừ', '', -R.ded, true);
 }
+
+/* ---------- Ngày lễ ---------- */
+function renderHols() {
+  const y = view.getFullYear(), box = $('#holList'); box.replaceChildren();
+  $('#holTitle').textContent = 'Ngày lễ năm ' + y;
+  const a = S.holidays.filter(x => x.date.startsWith(y + '-'));
+  if (!a.length) box.append(el('div', 'empty', 'Chưa có ngày lễ nào trong năm.'));
+  a.forEach(x => { const r = el('div', 'ex'), b = el('button', 'ib', 'Xóa'); b.dataset.act = 'holDel'; b.dataset.v = x.date; r.append(el('span', null, `${vn(x.date)} (${DOW[pd(x.date).getDay()]}) ${x.name}`), b); box.append(r); });
+}
+function addHol(date, name) { const i = S.holidays.findIndex(x => x.date === date); if (i >= 0) S.holidays[i].name = name; else S.holidays.push({ date, name }); S.holidays.sort((p, q) => p.date.localeCompare(q.date)); }
 
 /* ---------- Nhắc ghi chấm công ---------- */
 const remStat = t => { $('#rStatus').textContent = t; };
@@ -736,7 +776,7 @@ const afterTime = () => { const n = new Date(); return `${pad(n.getHours())}:${p
 function todayMissing() { const n = new Date(); return n.getDay() !== 0 && !(byDate()[ymd(n)] || []).length; }
 function missingDays() {
   const n = new Date(), by = byDate(), out = [];
-  for (let d = 1; d < n.getDate(); d++) { const dt = new Date(n.getFullYear(), n.getMonth(), d), k = ymd(dt); if (dt.getDay() !== 0 && !(by[k] || []).length) out.push(k); }
+  for (let d = 1; d < n.getDate(); d++) { const dt = new Date(n.getFullYear(), n.getMonth(), d), k = ymd(dt); if (dt.getDay() !== 0 && !holOf(k) && !(by[k] || []).length) out.push(k); }
   return out;
 }
 function checkRemind() {
@@ -784,10 +824,16 @@ const A = {
   hideBanner: () => $('#banner').remove(), filter: b => { filter = b.dataset.v; renderCal(); }, goto: b => { view = new Date(view.getFullYear(), +b.dataset.v - 1, 1); renderAll(); },
   bulk: () => openM('bulk'), bulkGo, note: b => { $('#fNote').value = b.dataset.v; }, hrs: b => { $('#fHours').value = b.dataset.v; endFromHours(); },
   q17: b => { const T = TYPES.regular; S.records.push({ id: uid(), type: 'regular', date: b.dataset.v, start: T.s, end: T.e, hours: T.h, mult: T.m, note: 'Làm hành chính về 17h', signed: false }); save(); renderAll(); },
+  qhol: b => { const T = TYPES.holidayoff, hl = holOf(b.dataset.v); S.records.push({ id: uid(), type: 'holidayoff', date: b.dataset.v, start: T.s, end: T.e, hours: 0, mult: T.m, note: hl ? hl.name : '', signed: false }); save(); renderAll(); },
+  hols: () => { $('#holDate').value = ''; $('#holName').value = ''; renderHols(); openM('hol'); },
+  holName: b => { $('#holName').value = b.dataset.v; },
+  holAdd: () => { const d = $('#holDate').value, n = str($('#holName').value, 60); if (!isDate(d)) return toast('Hãy chọn ngày'); if (!n) return toast('Hãy nhập tên ngày lễ'); addHol(d, n); save(); renderHols(); renderAll(); $('#holName').value = ''; },
+  holFixed: () => { const y = view.getFullYear(); [['01-01', 'Tết Dương lịch'], ['04-30', 'Ngày 30/4'], ['05-01', '1/5'], ['09-02', 'Quốc khánh']].forEach(([md, n]) => { if (!holOf(`${y}-${md}`)) addHol(`${y}-${md}`, n); }); save(); renderHols(); renderAll(); },
+  holDel: b => { S.holidays = S.holidays.filter(x => x.date !== b.dataset.v); save(); renderHols(); renderAll(); },
   edit: b => { closeM(); openEntry(null, b.dataset.v); },
   del: b => { if (!confirm('Xóa bản ghi này?')) return; S.records = S.records.filter(r => r.id !== b.dataset.v); save(); closeM(); renderAll(); toast('Đã xóa'); },
   sign: b => { const r = S.records.find(x => x.id === b.dataset.v); if (r) { r.signed = !r.signed; save(); renderLeave(); } },
-  csv, txt: exportTxt, tpl: templateTxt, json: () => dl('worklog-backup.json', 'application/json', JSON.stringify({ app: 'worklog', version: 2, profile: S.profile, records: S.records, pay: S.pay }, null, 1)),
+  csv, txt: exportTxt, tpl: templateTxt, json: () => dl('worklog-backup.json', 'application/json', JSON.stringify({ app: 'worklog', version: 2, profile: S.profile, records: S.records, pay: S.pay, holidays: S.holidays }, null, 1)),
   import: () => $('#file').click(), ics: b => ics(b.dataset.v), gconnect, gpush, gpull, notif, remIcs,
   remToday: () => { const T = TYPES.regular; S.records.push({ id: uid(), type: 'regular', date: ymd(new Date()), start: T.s, end: T.e, hours: T.h, mult: T.m, note: 'Làm hành chính về 17h', signed: false }); save(); renderAll(); toast('Đã ghi hôm nay (về 17h)'); },
   remBulk: () => { view = new Date(); view.setDate(1); renderAll(); openM('bulk'); },
